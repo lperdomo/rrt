@@ -5,20 +5,26 @@
 #include <QGraphicsItem>
 #include <QPainter>
 #include <QKeyEvent>
+#include <QGraphicsSceneMouseEvent>
 
+#include "rrt.h"
 #include "griditem.h"
 
 class Scene : public QGraphicsScene
 {
 public:
-    Scene(qreal x, qreal y, qreal width, qreal height);
+    Scene(int width, int height);
     ~Scene();
+    GridItem *getGridItem();
 private:
     GridItem *gridItem;
 protected:
     void drawForeground(QPainter *painter, const QRectF &rect);
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
+    void mousePressEvent(QGraphicsSceneMouseEvent *event);
+signals:
+    void change();
 };
 
 #endif // SCENEGRID_H

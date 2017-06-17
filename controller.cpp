@@ -2,18 +2,20 @@
 
 #include <iostream>
 
-Controller::Controller(double width, double height, double cellSize) :
+Controller::Controller() :
     QObject()
 {
-    scene = new Scene((width/2)*cellSize*-1, (height/2)*cellSize*-1, width*cellSize, height*cellSize, cellSize);
-    view = new QGraphicsView(scene);
+    rrt = new Rrt();
+    rrt->setGrid(100, 100);
     thread = new QThread();
+    view = new View(new Scene(100, 100));
+    this->connect(view, SIGNAL(startPathPlanning()), this, SLOT(doPathPlanning()));
 }
 
 Controller::~Controller()
 {
+    delete rrt;
     delete view;
-    delete scene;
     delete thread;
 }
 
@@ -22,9 +24,11 @@ void Controller::run()
     this->showView();
 }
 
-void Controller::update()
+void Controller::doPathPlanning()
 {
-    this->showView();
+    rrt->setXInit(dynamic_cast<Scene*>(view->scene())->getGridItem()->getSource());
+    rrt->setXEnd(dynamic_cast<Scene*>(view->scene())->getGridItem()->getTarget());
+    rrt->generateRrt();
 }
 
 void Controller::showView()
@@ -35,3 +39,4 @@ void Controller::showView()
         view->viewport()->update();
     }
 }
+

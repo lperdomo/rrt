@@ -4,24 +4,27 @@
 #include <QObject>
 #include <QThread>
 #include <QGraphicsView>
-#include "scene.h"
+
+#include "rrt.h"
+#include "view.h"
 
 class Controller : public QObject
 {
     Q_OBJECT
 public:
-    explicit Controller(double width, double height, double cellSize);
+    explicit Controller();
     ~Controller();
     void run();
 private:
-    Scene *scene;
-    QGraphicsView *view;
+    Rrt *rrt;
+    View *view;
     QThread *thread;
     void showView();
 signals:
 
 public slots:
-    void update();
+//    void setSourcePoint(int x, int y);
+    void doPathPlanning();
 };
 
 #endif // CONTROLLER_H
