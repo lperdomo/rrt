@@ -2,18 +2,30 @@
 
 double Cell::size = 5;
 
-Cell::Cell(int x, int y)
+Cell::Cell(int X, int Y)
 {
-    this->x = x;
-    this->y = y;
+    this->X = X;
+    this->Y = Y;
 }
 
-int Cell::getX()
+int Cell::x()
 {
-    return x;
+    return X;
 }
 
-int Cell::getY()
+int Cell::y()
 {
-    return y;
+    return Y;
+}
+
+bool Cell::operator<(Cell &b)
+{
+    if (this->x() < b.x()) {
+        return true;
+    } else if (this->x() == b.x()) {
+        if (this->y() < b.y()) {
+            return true;
+        }
+    }
+    return false;
 }

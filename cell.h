@@ -5,13 +5,14 @@
 class Cell
 {
 public:
-    Cell(int x, int y);
-    int getX();
-    int getY();
+    Cell(int X, int Y);
+    int x();
+    int y();
+    bool operator<(Cell &b);
     static double size;
 private:
-    int x;
-    int y;
+    int X;
+    int Y;
 };
 
 #endif // CELL_H

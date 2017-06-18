@@ -6,9 +6,9 @@ Controller::Controller() :
     QObject()
 {
     rrt = new Rrt();
-    rrt->setGrid(100, 100);
     thread = new QThread();
-    view = new View(new Scene(100, 100));
+    scene = new Scene(100, 100);
+    view = new View(scene);
     this->connect(view, SIGNAL(startPathPlanning()), this, SLOT(doPathPlanning()));
 }
 
@@ -26,9 +26,11 @@ void Controller::run()
 
 void Controller::doPathPlanning()
 {
-    rrt->setXInit(dynamic_cast<Scene*>(view->scene())->getGridItem()->getSource());
-    rrt->setXEnd(dynamic_cast<Scene*>(view->scene())->getGridItem()->getTarget());
-    rrt->generateRrt();
+    rrt->setXInit(scene->getGridItem()->getSource());
+    rrt->setXEnd(scene->getGridItem()->getTarget());
+    rrt->generateCSpace(100, 100);
+    scene->drawObstacles(rrt->getCobs());
+    scene->drawPath(rrt->generateRrt());
 }
 
 void Controller::showView()

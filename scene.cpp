@@ -27,7 +27,7 @@ void Scene::drawForeground(QPainter *painter, const QRectF &rect)
     for (qreal y = top; y < rect.bottom(); y += Cell::size)
         lines.append(QLineF(rect.left(), y, rect.right(), y));
 
-    painter->drawLines(lines.data(), lines.size());
+    //painter->drawLines(lines.data(), lines.size());
 }
 
 void Scene::keyPressEvent(QKeyEvent *event)
@@ -65,4 +65,16 @@ void Scene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 GridItem *Scene::getGridItem()
 {
     return gridItem;
+}
+
+void Scene::drawObstacles(std::vector<Cell> obstacles)
+{
+    gridItem->setObstacles(obstacles);
+    this->update();
+}
+
+void Scene::drawPath(RrtGraph graph)
+{
+    gridItem->setRrtGraph(graph);
+    this->update();
 }

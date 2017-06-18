@@ -18,6 +18,7 @@ public:
 private:
     Rrt *rrt;
     View *view;
+    Scene *scene;
     QThread *thread;
     void showView();
 signals:

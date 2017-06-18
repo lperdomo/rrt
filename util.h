@@ -3,6 +3,9 @@
 
 #include <QPoint>
 
+#include <cmath>
+
+
 class Util
 {
 public:

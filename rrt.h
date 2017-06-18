@@ -12,20 +12,23 @@ class Rrt
 {
 public:
     Rrt();
-    void setGrid(int width, int height);
     void setXInit(QPoint XInit);
     void setXEnd(QPoint XEnd);
-    void generateRrt();
+    RrtGraph generateRrt();
+    void generateCSpace(int width, int height);
+    std::vector<Cell> getCobs();
 private:
     int K;
     int width;
     int height;
-    std::vector<Cell> grid;
+    std::vector<Cell> Cfree;
+    std::vector<Cell> Cobs;
     RrtGraph T;
     QPoint XInit;
     QPoint XEnd;
-    void randomState(QPoint XRand);
-    void nearestNeighbour(QPoint XRand, QPoint XNear);
+    void randomState(QPoint &XRand);
+    Vertex nearestNeighbour(QPoint XRand, QPoint &XNear);
+    void newState(QPoint XNear, QPoint u, QPoint deltat, QPoint &XNew);
 };
 
 #endif // RRT_H
