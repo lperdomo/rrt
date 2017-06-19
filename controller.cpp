@@ -12,6 +12,7 @@ Controller::Controller() :
     view = new View(scene);
     window.setFixedSize(500+15, 500+65);
     window.getLineK()->setText(QString::number(rrt->getK()));
+    window.getLineStep()->setText(QString::number(rrt->getStep()));
     window.getLineObstacles()->setText(QString::number(cspace->getObstacles()));
     this->connect(window.getButtonRun(), SIGNAL(clicked(bool)), this, SLOT(doPathPlanning()));
     this->connect(window.getButtonObs(), SIGNAL(clicked(bool)), this, SLOT(doWorldGeneration()));
@@ -47,6 +48,7 @@ void Controller::doPathPlanning()
 {
     window.resetMessage();
     rrt->setK(window.getLineK()->text().toInt());
+    rrt->setStep(window.getLineStep()->text().toInt());
     rrt->setCSpace(cspace);
     rrt->setXInit(scene->getGridItem()->getSource());
     rrt->setXEnd(scene->getGridItem()->getTarget());

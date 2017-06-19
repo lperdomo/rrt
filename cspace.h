@@ -14,6 +14,10 @@ public:
     int getHeight();
     void setObstacles(int obstacles);
     int getObstacles();
+    std::vector<Cell*> *getCfree();
+    std::vector<Cell*> *getCobstacle();
+    Cell *freeAt(int i);
+    Cell *obstacleAt(int i);
     void generateCSpace();
     bool isObstacle(int x, int y);
     std::vector<std::vector<bool> > getCSpace();
@@ -22,6 +26,8 @@ private:
     int height;
     int obstacles;
     std::vector<std::vector<bool> > Cspace;
+    std::vector<Cell*> *Cfree;
+    std::vector<Cell*> *Cobstacle;
     void generateCobstacle();
 };
 

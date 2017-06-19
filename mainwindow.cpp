@@ -25,6 +25,14 @@ MainWindow::MainWindow(QWidget *parent) :
     lineK->setFixedWidth(50);
     ui->mainToolBar->addWidget(lineK);
 
+    QLabel *labelStep = new QLabel(this);
+    labelStep->setText("Step:");
+    ui->mainToolBar->addWidget(labelStep);
+
+    lineStep = new QLineEdit(this);
+    lineStep->setFixedWidth(50);
+    ui->mainToolBar->addWidget(lineStep);
+
     QLabel *labelObstacles = new QLabel(this);
     labelObstacles->setText("Obstacles:");
     ui->mainToolBar->addWidget(labelObstacles);
@@ -59,6 +67,11 @@ QToolButton *MainWindow::getButtonObs()
 QLineEdit *MainWindow::getLineK()
 {
     return lineK;
+}
+
+QLineEdit *MainWindow::getLineStep()
+{
+    return lineStep;
 }
 
 QLineEdit *MainWindow::getLineObstacles()

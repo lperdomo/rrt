@@ -18,12 +18,15 @@ public:
     void setXEnd(QPoint XEnd);
     void setK(int K);
     int getK();
+    void setStep(int step);
+    int getStep();
     void generateRrt();
     bool getFound();
     Graph *getT();
     Graph *getTPath();
 private:
     int K;
+    int step;
     CSpace *cspace;
     Graph *T;
     Graph *TPath;

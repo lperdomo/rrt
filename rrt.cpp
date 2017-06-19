@@ -5,6 +5,7 @@
 Rrt::Rrt()
 {
     K = 1000;
+    step = 1;
     T = new Graph();
     TPath = new Graph();
 }
@@ -36,6 +37,16 @@ int Rrt::getK()
     return this->K;
 }
 
+void Rrt::setStep(int step)
+{
+    this->step = step;
+}
+
+int Rrt::getStep()
+{
+    return this->step;
+}
+
 void Rrt::generateRrt()
 {
     Graph::Vertex vertex = NULL;
@@ -53,7 +64,7 @@ void Rrt::generateRrt()
         this->randomState();
 
         vertex = this->nearestNeighbour();
-        if (Util::euclideanDistance(XRand, XNear) > 0) {
+        if (Util::euclideanDistance(XRand, XNear) > step) {
             this->newState();
             if (this->validPath(XNew, XNear)) {
                 this->addPath(vertex);
@@ -85,8 +96,19 @@ void Rrt::randomState()
     XRand.setX(Cfree[id].x());
     XRand.setY(Cfree[id].y());*/
     //srand(time(0));
-    XRand.setX(round(drand48()*cspace->getWidth()));
-    XRand.setY(round(drand48()*cspace->getHeight()));
+    int prob = rand()%100;
+
+    if (prob <= -1) {
+        std::cout << "prob" << prob << std::endl;
+        XRand.setX(XEnd.x());
+        XRand.setY(XEnd.y());
+    } else {
+        int id = rand()%cspace->getCfree()->size();
+        XRand.setX(cspace->freeAt(id)->x());
+        XRand.setY(cspace->freeAt(id)->y());
+        //XRand.setX(round(drand48()*cspace->getWidth()));
+        //XRand.setY(round(drand48()*cspace->getHeight()));
+    }
     //std::cout << " randx=" << XRand.x() << " randy=" << XRand.y() << std::endl;
 }
 
@@ -94,12 +116,13 @@ Graph::Vertex Rrt::nearestNeighbour()
 {
     double closest = -1, distance;
     Graph::Vertex vertex = 0;
-    for (std::pair<Graph::VertexIterator, Graph::VertexIterator> it = T->getVertices(); it.first != it.second; ++it.first) {
-        distance = Util::euclideanDistance(T->vertexAt(*it.first), XRand);
+    //for (std::pair<Graph::VertexIterator, Graph::VertexIterator> it = T->getVertices(); it.first != it.second; ++it.first) {
+    for (std::pair<Graph::VertexIterator, Graph::VertexIterator> it = TPath->getVertices(); it.first != it.second; ++it.first) {
+        distance = Util::euclideanDistance(TPath->vertexAt(*it.first), XRand);
         if (closest < 0 || distance < closest) {
             closest = distance;
-            XNear.setX(T->vertexAt(*it.first).x());
-            XNear.setY(T->vertexAt(*it.first).y());
+            XNear.setX(TPath->vertexAt(*it.first).x());
+            XNear.setY(TPath->vertexAt(*it.first).y());
             vertex = *it.first;
         }
     }
@@ -177,16 +200,15 @@ void Rrt::addPath(Graph::Vertex near)
 
 void Rrt::newState()
 {
-    XNew = XNear + 1 * ((XRand - XNear) * 0.1);
+    XNew = XNear + step * ((XRand - XNear) * 0.1);
 }
-
 
 void Rrt::isTarget(QPoint current)
 {
     if ((current.x() == XEnd.x() && current.y() == XEnd.y())
-       || (current.x() == XEnd.x() && current.y() == XEnd.y()+1)
-       || (current.x() == XEnd.x()+1 && current.y() == XEnd.y())
-       || (current.x() == XEnd.x()+1 && current.y() == XEnd.y()+1)) {
+       || (current.x() == XEnd.x() && current.y() == XEnd.y()-1)
+       || (current.x() == XEnd.x()-1 && current.y() == XEnd.y())
+       || (current.x() == XEnd.x()-1 && current.y() == XEnd.y()-1)) {
         found = true;
     }
 }
