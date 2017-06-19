@@ -16,8 +16,8 @@ public:
     Scene(int width, int height);
     ~Scene();
     GridItem *getGridItem();
-    void drawObstacles(std::vector<Cell> obstacles);
-    void drawPath(RrtGraph graph);
+    void drawSpace(std::vector<std::vector<bool> > Cspace);
+    void drawPath(Graph *graph);
 private:
     GridItem *gridItem;
 protected:

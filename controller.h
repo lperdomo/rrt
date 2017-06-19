@@ -5,6 +5,8 @@
 #include <QThread>
 #include <QGraphicsView>
 
+#include "mainwindow.h"
+#include "cspace.h"
 #include "rrt.h"
 #include "view.h"
 
@@ -16,6 +18,8 @@ public:
     ~Controller();
     void run();
 private:
+    MainWindow window;
+    CSpace *cspace;
     Rrt *rrt;
     View *view;
     Scene *scene;

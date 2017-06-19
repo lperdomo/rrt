@@ -5,53 +5,13 @@
 Rrt::Rrt()
 {
     K = 1000;
+    T = new Graph();
+    TPath = new Graph();
 }
 
-void Rrt::generateCSpace(int width, int height)
+void Rrt::setCSpace(CSpace *cspace)
 {
-    this->width = width;
-    this->height = height;
-
-    srand(time(0));
-    int obstacles = rand()%(10+1-2)+2;
-    Cobs.clear();
-    for (int i = 0; i < obstacles; i++) {
-        Cell obstacle(round((rand()%(100+1-1)+1)*width/100), round((rand()%(100+1-1)+1)*height/100));
-        int limit = rand()%(20+1-10)+10;
-        limit = (obstacle.x()+limit < width ? limit : width);
-        for (int j = 0; j < limit; j++) {
-            Cobs.push_back(Cell(obstacle.x()+j, obstacle.y()));
-        }
-    }
-    std::cout << "eeee" << std::endl;
-    std::sort(Cobs.begin(), Cobs.end());
-    for (int i = 0; i < Cobs.size(); i++) {
-        std::cout << "cobsx" << Cobs[i].x() << " cobsy" << Cobs[i].y() << std::endl;
-    }
-
-    Cfree.clear();
-    int cobs = 0;
-    for (int i = 0; i < width; i++) {
-        for (int j = 0; j < height; j++) {
-            std::cout << "cobs" << cobs << " obsx" << Cobs[cobs].x() << " i" << i << " obsy" << Cobs[cobs].y() << " j" << j << std::endl;
-            if (Cobs[cobs].x() == i && Cobs[cobs].y() == j) {
-                std::cout << "ffffff" << std::endl;
-                if (cobs < Cobs.size()) {
-                    std::cout << "ggggg" << Cobs.size() << std::endl;
-                    cobs++;
-                }
-            } else {
-                Cfree.push_back(Cell(i,j));
-            }
-        }
-    }
-    std::cout << "obstacles" << Cobs.size() << " cobs" << cobs << std::endl;
-    std::cout << "frees" << Cfree.size() << std::endl;
-}
-
-std::vector<Cell> Rrt::getCobs()
-{
-    return Cobs;
+    this->cspace = cspace;
 }
 
 void Rrt::setXInit(QPoint XInit)
@@ -66,58 +26,139 @@ void Rrt::setXEnd(QPoint XEnd)
     this->XEnd.setY(XEnd.y()/Cell::size);
 }
 
-RrtGraph Rrt::generateRrt()
+void Rrt::generateRrt()
 {
-    QPoint XRand, XNear, XNew;
-    Vertex near;
-    T.init(XInit);
+    Graph::Vertex vertex = NULL;
+    T->init(XInit);
+    TPath->init(XInit);
     for (int k = 0; k < K; k++) {
-        this->randomState(XRand);
-        near = this->nearestNeighbour(XRand, XNear);
-        this->newState(XNear, XRand, XRand - XNear, XNew);
-        T.addEdge(near, T.addVertex(XNew));
+        XRand.setX(0);
+        XRand.setY(0);
+        XNear.setX(0);
+        XNear.setY(0);
+        XNew.setX(0);
+        XNew.setY(0);
+
+        this->randomState();
+
+        vertex = this->nearestNeighbour();
+        if (Util::euclideanDistance(XRand, XNear) > 0) {
+            this->newState();
+            if (this->validPath(XNew, XNear)) {
+                this->addPath(vertex);
+                T->addEdge(vertex, T->addVertex(XNew));
+            }
+        }
     }
-    T.debug();
+    T->debug();
+}
+
+Graph *Rrt::getT()
+{
     return T;
 }
 
-void Rrt::randomState(QPoint &XRand)
+Graph *Rrt::getTPath()
 {
-    int id = rand()%Cfree.size();
+    return TPath;
+}
+
+void Rrt::randomState()
+{
+    /*int id = rand()%Cfree.size();
     XRand.setX(Cfree[id].x());
-    XRand.setY(Cfree[id].y());
+    XRand.setY(Cfree[id].y());*/
     //srand(time(0));
-    //XRand.setX(round(drand48()*width));
-    //XRand.setY(round(drand48()*height));
+    XRand.setX(round(drand48()*cspace->getWidth()));
+    XRand.setY(round(drand48()*cspace->getHeight()));
     //std::cout << " randx=" << XRand.x() << " randy=" << XRand.y() << std::endl;
 }
 
-Vertex Rrt::nearestNeighbour(QPoint XRand, QPoint &XNear)
+Graph::Vertex Rrt::nearestNeighbour()
 {
-    double d = -1, p;
-    Vertex vertex;
-    for (std::pair<VertexIterator, VertexIterator> it = T.getVertices(); it.first != it.second; ++it.first) {
-        //std::cout << "x" << T.vertexAt(*it.first).x() << std::endl;
-        //std::cout << "eeeee" << std::endl;
-        p = Util::euclideanDistance(T.vertexAt(*it.first), XRand);
-        /*std::cout << "x=" << T.vertexAt(*it.first).x()
-                  << " y=" << T.vertexAt(*it.first).y()
-                  << " p" << p
-                  << " randx=" << XRand.x()
-                  << " randy=" << XRand.y()
-                  << std::endl;*/
-        if (d < 0 || p < d) {
-            d = p;
-            XNear.setX(T.vertexAt(*it.first).x());
-            XNear.setY(T.vertexAt(*it.first).y());
+    double closest = -1, distance;
+    Graph::Vertex vertex = 0;
+    for (std::pair<Graph::VertexIterator, Graph::VertexIterator> it = T->getVertices(); it.first != it.second; ++it.first) {
+        distance = Util::euclideanDistance(T->vertexAt(*it.first), XRand);
+        if (closest < 0 || distance < closest) {
+            closest = distance;
+            XNear.setX(T->vertexAt(*it.first).x());
+            XNear.setY(T->vertexAt(*it.first).y());
             vertex = *it.first;
         }
     }
     return vertex;
 }
 
-void Rrt::newState(QPoint XNear, QPoint u, QPoint deltat, QPoint &XNew)
+bool Rrt::validPath(QPoint p1, QPoint p2)
 {
-    //std::cout << "deltat x" << deltat.x() << " y" << deltat.y() << std::endl;
-    XNew = XNear + deltat * 0.1;
+    int dx = p2.x() - p1.x(), dy = p2.y() - p1.y()
+       , dx1 = abs(dx), dy1 = abs(dy)
+       , px = 2*dy1-dx1, py = 2*dx1-dy1
+       , x, y, xe, ye;
+
+    path.clear();
+    if (dy1 <= dx1) {
+        if (dx >= 0) {
+            x = p1.x();
+            y = p1.y();
+            xe = p2.x();
+        } else {
+            x = p2.x();
+            y = p2.y();
+            xe = p1.x();
+        }
+        if (cspace->isObstacle(x, y)) return false;
+        path.push_back(QPoint(x, y));
+        for (int i = 0; x < xe; i++) {
+            x++;
+            if (px < 0) px += 2*dy1;
+            else {
+                if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) y++;
+                else y--;
+                px += 2*(dy1-dx1);
+            }
+            if (cspace->isObstacle(x, y)) return false;
+            path.push_back(QPoint(x, y));
+        }
+    } else {
+        if (dy >= 0) {
+            x = p1.x();
+            y = p1.y();
+            ye = p2.y();
+        } else {
+            x = p2.x();
+            y = p2.y();
+            ye = p1.y();
+        }
+        if (cspace->isObstacle(x, y)) return false;
+        path.push_back(QPoint(x, y));
+        for (int i = 0; y < ye; i++) {
+            y++;
+            if (py <= 0) py += 2*dx1;
+            else {
+                if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) x++;
+                else x--;
+                py += 2*(dx1-dy1);
+            }
+            if (cspace->isObstacle(x, y)) return false;
+            path.push_back(QPoint(x, y));
+        }
+    }
+    return true;
+}
+
+void Rrt::addPath(Graph::Vertex near)
+{
+    Graph::Vertex newe;
+    for (int i = 0; i < path.size(); i++) {
+        newe = TPath->addVertex(path[i]);
+        TPath->addEdge(near, newe);
+        near = newe;
+    }
+}
+
+void Rrt::newState()
+{
+    XNew = XNear + 1 * ((XRand - XNear) * 0.1);
 }

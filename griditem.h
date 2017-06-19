@@ -4,7 +4,7 @@
 #include <QGraphicsItem>
 #include <QPainter>
 
-#include "rrtgraph.h"
+#include "graph.h"
 #include "cell.h"
 
 class GridItem : public QGraphicsItem
@@ -15,12 +15,15 @@ public:
     QRectF boundingRect() const;
     void setSource(qreal x, qreal y);
     QPoint getSource();
+    void resetSource();
     bool isSource(qreal x, qreal y);
     void setTarget(qreal x, qreal y);
     QPoint getTarget();
+    void resetTarget();
     bool isTarget(qreal x, qreal y);
-    void setRrtGraph(RrtGraph graph);
-    void setObstacles(std::vector<Cell> obstacles);
+    void setGraph(Graph *graph);
+    void setCSpace(std::vector<std::vector<bool> > Cspace);
+    bool isFree(qreal x, qreal y);
     void zoomIn();
     void zoomOut();
     double scale;
@@ -32,8 +35,8 @@ private:
     qreal height;
     QPoint source;
     QPoint target;
-    RrtGraph graph;
-    std::vector<Cell> obstacles;
+    Graph *graph;
+    std::vector<std::vector<bool> > Cspace;
 };
 
 #endif // GRIDITEM_H

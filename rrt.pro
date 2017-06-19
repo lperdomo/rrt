@@ -30,9 +30,10 @@ SOURCES += \
     rrt.cpp \
     cell.cpp \
     view.cpp \
-    tree.cpp \
-    rrtgraph.cpp \
-    util.cpp
+    util.cpp \
+    graph.cpp \
+    cspace.cpp \
+    mainwindow.cpp
 
 HEADERS += \
     controller.h \
@@ -41,11 +42,13 @@ HEADERS += \
     rrt.h \
     cell.h \
     view.h \
-    tree.h \
-    rrtgraph.h \
-    util.h
+    util.h \
+    graph.h \
+    cspace.h \
+    mainwindow.h
 
-FORMS +=
+FORMS += \
+    mainwindow.ui
 
 LIBS += \
        -lboost_system\

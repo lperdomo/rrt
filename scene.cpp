@@ -21,13 +21,13 @@ void Scene::drawForeground(QPainter *painter, const QRectF &rect)
     qreal top = int(rect.top()) - (int(rect.top()) % (int(Cell::size)));
     QVarLengthArray<QLineF, 100> lines;
 
-    painter->setPen(QPen(QColor(220, 220, 220)));
+    painter->setPen(QPen(QColor(240, 240, 240, 150)));
     for (qreal x = left; x < rect.right(); x += Cell::size)
         lines.append(QLineF(x, rect.top(), x, rect.bottom()));
     for (qreal y = top; y < rect.bottom(); y += Cell::size)
         lines.append(QLineF(rect.left(), y, rect.right(), y));
 
-    //painter->drawLines(lines.data(), lines.size());
+    painter->drawLines(lines.data(), lines.size());
 }
 
 void Scene::keyPressEvent(QKeyEvent *event)
@@ -48,10 +48,10 @@ void Scene::keyReleaseEvent(QKeyEvent *event)
 void Scene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if (gridItem->isTarget(event->scenePos().x(), event->scenePos().y())) {
-        gridItem->setTarget(0, 0);
+        gridItem->resetTarget();
         this->update();
     } else if (gridItem->isSource(event->scenePos().x(), event->scenePos().y())) {
-        gridItem->setSource(0, 0);
+        gridItem->resetSource();
         this->update();
     } else if (gridItem->getSource().isNull()) {
         gridItem->setSource(event->scenePos().x(), event->scenePos().y());
@@ -67,14 +67,14 @@ GridItem *Scene::getGridItem()
     return gridItem;
 }
 
-void Scene::drawObstacles(std::vector<Cell> obstacles)
+void Scene::drawSpace(std::vector<std::vector<bool> > Cspace)
 {
-    gridItem->setObstacles(obstacles);
+    gridItem->setCSpace(Cspace);
     this->update();
 }
 
-void Scene::drawPath(RrtGraph graph)
+void Scene::drawPath(Graph *graph)
 {
-    gridItem->setRrtGraph(graph);
+    gridItem->setGraph(graph);
     this->update();
 }
