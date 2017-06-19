@@ -26,12 +26,23 @@ void Rrt::setXEnd(QPoint XEnd)
     this->XEnd.setY(XEnd.y()/Cell::size);
 }
 
+void Rrt::setK(int K)
+{
+    this->K = K;
+}
+
+int Rrt::getK()
+{
+    return this->K;
+}
+
 void Rrt::generateRrt()
 {
     Graph::Vertex vertex = NULL;
+    found = false;
     T->init(XInit);
     TPath->init(XInit);
-    for (int k = 0; k < K; k++) {
+    for (int k = 0; (k < K && found == false); k++) {
         XRand.setX(0);
         XRand.setY(0);
         XNear.setX(0);
@@ -51,6 +62,11 @@ void Rrt::generateRrt()
         }
     }
     T->debug();
+}
+
+bool Rrt::getFound()
+{
+    return found;
 }
 
 Graph *Rrt::getT()
@@ -150,15 +166,27 @@ bool Rrt::validPath(QPoint p1, QPoint p2)
 
 void Rrt::addPath(Graph::Vertex near)
 {
-    Graph::Vertex newe;
+    Graph::Vertex step;
     for (int i = 0; i < path.size(); i++) {
-        newe = TPath->addVertex(path[i]);
-        TPath->addEdge(near, newe);
-        near = newe;
+        this->isTarget(path[i]);
+        step = TPath->addVertex(path[i]);
+        TPath->addEdge(near, step);
+        near = step;
     }
 }
 
 void Rrt::newState()
 {
     XNew = XNear + 1 * ((XRand - XNear) * 0.1);
+}
+
+
+void Rrt::isTarget(QPoint current)
+{
+    if ((current.x() == XEnd.x() && current.y() == XEnd.y())
+       || (current.x() == XEnd.x() && current.y() == XEnd.y()+1)
+       || (current.x() == XEnd.x()+1 && current.y() == XEnd.y())
+       || (current.x() == XEnd.x()+1 && current.y() == XEnd.y()+1)) {
+        found = true;
+    }
 }

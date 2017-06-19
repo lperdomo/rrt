@@ -29,6 +29,7 @@ signals:
 
 public slots:
 //    void setSourcePoint(int x, int y);
+    void doWorldGeneration();
     void doPathPlanning();
 };
 

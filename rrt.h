@@ -15,8 +15,11 @@ public:
     Rrt();
     void setCSpace(CSpace *cspace);
     void setXInit(QPoint XInit);
-    void setXEnd(QPoint XEnd);    
+    void setXEnd(QPoint XEnd);
+    void setK(int K);
+    int getK();
     void generateRrt();
+    bool getFound();
     Graph *getT();
     Graph *getTPath();
 private:
@@ -30,11 +33,13 @@ private:
     QPoint XNear;
     QPoint XNew;
     std::vector<QPoint> path;
+    bool found;
     void randomState();
     Graph::Vertex nearestNeighbour();
     void newState();
     bool validPath(QPoint p1, QPoint p2);
     void addPath(Graph::Vertex near);
+    void isTarget(QPoint current);
 };
 
 #endif // RRT_H

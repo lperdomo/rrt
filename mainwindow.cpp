@@ -7,14 +7,75 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QPushButton *buttonRun = new QPushButton("Run", this);
+    buttonRun = new QToolButton(this);
+    buttonRun->setText("Run");
     ui->mainToolBar->addWidget(buttonRun);
 
-    QPushButton *buttonObs = new QPushButton("Obstacles", this);
+    buttonObs = new QToolButton(this);
+    buttonObs->setText("World");
     ui->mainToolBar->addWidget(buttonObs);
+
+    ui->mainToolBar->addSeparator();
+
+    QLabel *labelK = new QLabel(this);
+    labelK->setText("K:");
+    ui->mainToolBar->addWidget(labelK);
+
+    lineK = new QLineEdit(this);
+    lineK->setFixedWidth(50);
+    ui->mainToolBar->addWidget(lineK);
+
+    QLabel *labelObstacles = new QLabel(this);
+    labelObstacles->setText("Obstacles:");
+    ui->mainToolBar->addWidget(labelObstacles);
+
+    lineObstacles = new QLineEdit(this);
+    lineObstacles->setFixedWidth(50);
+    ui->mainToolBar->addWidget(lineObstacles);
+
+    ui->mainToolBar->addSeparator();
+
+    labelSearch = new QLabel(this);
+    ui->mainToolBar->addWidget(labelSearch);
+
+    this->connect(new QShortcut(QKeySequence(Qt::Key_Space), this), SIGNAL(activated()), buttonRun, SLOT(click()));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+QToolButton *MainWindow::getButtonRun()
+{
+    return buttonRun;
+}
+
+QToolButton *MainWindow::getButtonObs()
+{
+    return buttonObs;
+}
+
+QLineEdit *MainWindow::getLineK()
+{
+    return lineK;
+}
+
+QLineEdit *MainWindow::getLineObstacles()
+{
+    return lineObstacles;
+}
+
+void MainWindow::resetMessage()
+{
+    labelSearch->setText("Target:");
+}
+
+void MainWindow::searchMessage(bool success)
+{
+    if (success) {
+        labelSearch->setText("Target: Found");
+    } else {
+        labelSearch->setText("Target: Not found");
+    }
 }

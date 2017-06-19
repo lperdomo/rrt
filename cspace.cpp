@@ -2,10 +2,11 @@
 
 #include <iostream>
 
-CSpace::CSpace(int width, int height)
+CSpace::CSpace(int width, int height, int obstacles)
 {
     this->width = width;
     this->height = height;
+    this->obstacles = obstacles;
 }
 
 int CSpace::getWidth()
@@ -16,6 +17,16 @@ int CSpace::getWidth()
 int CSpace::getHeight()
 {
     return this->height;
+}
+
+void CSpace::setObstacles(int obstacles)
+{
+    this->obstacles = obstacles;
+}
+
+int CSpace::getObstacles()
+{
+    return obstacles;
 }
 
 bool CSpace::isObstacle(int x, int y)
@@ -44,18 +55,17 @@ void CSpace::generateCSpace()
 
 void CSpace::generateCobstacle()
 {
-    for (int x = 0; x < width; x++) {
+    for (int x = 0; x <= width; x++) {
         Cspace[x][0] = false;
         Cspace[x][height] = false;
     }
 
-    for (int y = 0; y < height; y++) {
+    for (int y = 0; y <= height; y++) {
         Cspace[0][y] = false;
         Cspace[width][y] = false;
     }
 
     srand(time(0));
-    int obstacles = rand()%(10+1-2)+2;
     for (int o = 0; o < obstacles; o++) {
         Cell obstacle(round((rand()%(100+1-1)+1)*width/100), round((rand()%(100+1-1)+1)*height/100));
         int limitx = rand()%(20+1-10)+10, limity = rand()%(20+1-10)+10;

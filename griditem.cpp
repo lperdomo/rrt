@@ -39,8 +39,8 @@ void GridItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
     if (graph) {
         for (std::pair<Graph::VertexIterator, Graph::VertexIterator> it = graph->getVertices(); it.first != it.second; ++it.first) {
             //std::cout << "x" << graph.vertexAt(*it.first).x() << " y" << graph.vertexAt(*it.first).y() << std::endl;
-            painter->setPen(QPen(QColor(200, 200, 200)));
-            painter->setBrush(QBrush(QColor(200, 200, 200)));
+            painter->setPen(QPen(QColor(0, 0, 200)));
+            painter->setBrush(QBrush(QColor(0, 0, 200)));
             painter->drawRect(Cell::size*graph->vertexAt(*it.first).x()
                               , Cell::size*graph->vertexAt(*it.first).y(), Cell::size, Cell::size);
         }
@@ -61,7 +61,7 @@ void GridItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
                       Cell::size, Cell::size);*/
         painter->drawRect(Cell::size*round(source.x()/Cell::size)-Cell::size,
                       Cell::size*round(source.y()/Cell::size)-Cell::size,
-                      Cell::size*2, Cell::size*2);
+                      Cell::size*2, Cell::size*2);        
     }
     if (!target.isNull()) {
         painter->setPen(QPen(QColor(220, 0, 0)));

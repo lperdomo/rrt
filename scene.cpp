@@ -66,15 +66,3 @@ GridItem *Scene::getGridItem()
 {
     return gridItem;
 }
-
-void Scene::drawSpace(std::vector<std::vector<bool> > Cspace)
-{
-    gridItem->setCSpace(Cspace);
-    this->update();
-}
-
-void Scene::drawPath(Graph *graph)
-{
-    gridItem->setGraph(graph);
-    this->update();
-}
