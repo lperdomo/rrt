@@ -1,7 +1,8 @@
 #ifndef RRT_H
 #define RRT_H
 
-#include <QPoint>
+#include <QObject>
+#include <QVector2D>
 #include <vector>
 
 #include "util.h"
@@ -9,40 +10,47 @@
 #include "cspace.h"
 #include "cell.h"
 
-class Rrt
+class Rrt : public QObject
 {
+    Q_OBJECT
 public:
     Rrt();
+    ~Rrt();
     void setCSpace(CSpace *cspace);
-    void setXInit(QPoint XInit);
-    void setXEnd(QPoint XEnd);
+    void setXInit(QVector2D XInit);
+    void setXEnd(QVector2D XEnd);
     void setK(int K);
     int getK();
     void setStep(int step);
     int getStep();
-    void generateRrt();
-    bool getFound();
+    void setBias(int bias);
+    int getBias();
+    bool isFound();
     Graph *getT();
-    Graph *getTPath();
 private:
     int K;
     int step;
+    int bias;
     CSpace *cspace;
     Graph *T;
-    Graph *TPath;
-    QPoint XInit;
-    QPoint XEnd;
-    QPoint XRand;
-    QPoint XNear;
-    QPoint XNew;
-    std::vector<QPoint> path;
+    QVector2D XInit;
+    QVector2D XEnd;
+    QVector2D XRand;
+    QVector2D XNear;
+    QVector2D XNew;
+    std::vector<QVector2D> transition;
     bool found;
     void randomState();
     Graph::Vertex nearestNeighbour();
     void newState();
-    bool validPath(QPoint p1, QPoint p2);
-    void addPath(Graph::Vertex near);
-    void isTarget(QPoint current);
+    bool validTransition(QVector2D p1, QVector2D p2);
+    void addTransition(Graph::Vertex current);
+    bool isXEnd(QVector2D current);
+signals:
+    void iteration();
+    void ended();
+public slots:
+    void generateRrt();
 };
 
 #endif // RRT_H

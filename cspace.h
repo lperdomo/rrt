@@ -16,11 +16,11 @@ public:
     int getObstacles();
     std::vector<Cell*> *getCfree();
     std::vector<Cell*> *getCobstacle();
+    std::vector<std::vector<bool> > getCSpace();
     Cell *freeAt(int i);
     Cell *obstacleAt(int i);
     void generateCSpace();
     bool isObstacle(int x, int y);
-    std::vector<std::vector<bool> > getCSpace();
 private:
     int width;
     int height;

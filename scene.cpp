@@ -21,7 +21,7 @@ void Scene::drawForeground(QPainter *painter, const QRectF &rect)
     qreal top = int(rect.top()) - (int(rect.top()) % (int(Cell::size)));
     QVarLengthArray<QLineF, 100> lines;
 
-    painter->setPen(QPen(QColor(240, 240, 240, 150)));
+    painter->setPen(QPen(QColor(240, 240, 240, 100)));
     for (qreal x = left; x < rect.right(); x += Cell::size)
         lines.append(QLineF(x, rect.top(), x, rect.bottom()));
     for (qreal y = top; y < rect.bottom(); y += Cell::size)

@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->mainToolBar->addWidget(labelK);
 
     lineK = new QLineEdit(this);
-    lineK->setFixedWidth(50);
+    lineK->setFixedWidth(60);
     ui->mainToolBar->addWidget(lineK);
 
     QLabel *labelStep = new QLabel(this);
@@ -30,15 +30,23 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->mainToolBar->addWidget(labelStep);
 
     lineStep = new QLineEdit(this);
-    lineStep->setFixedWidth(50);
+    lineStep->setFixedWidth(60);
     ui->mainToolBar->addWidget(lineStep);
+
+    QLabel *labelBias = new QLabel(this);
+    labelBias->setText("Bias:");
+    ui->mainToolBar->addWidget(labelBias);
+
+    lineBias = new QLineEdit(this);
+    lineBias->setFixedWidth(60);
+    ui->mainToolBar->addWidget(lineBias);
 
     QLabel *labelObstacles = new QLabel(this);
     labelObstacles->setText("Obstacles:");
     ui->mainToolBar->addWidget(labelObstacles);
 
     lineObstacles = new QLineEdit(this);
-    lineObstacles->setFixedWidth(50);
+    lineObstacles->setFixedWidth(60);
     ui->mainToolBar->addWidget(lineObstacles);
 
     ui->mainToolBar->addSeparator();
@@ -72,6 +80,11 @@ QLineEdit *MainWindow::getLineK()
 QLineEdit *MainWindow::getLineStep()
 {
     return lineStep;
+}
+
+QLineEdit *MainWindow::getLineBias()
+{
+    return lineBias;
 }
 
 QLineEdit *MainWindow::getLineObstacles()

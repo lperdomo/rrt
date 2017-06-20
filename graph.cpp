@@ -6,9 +6,10 @@ Graph::Graph()
 {
 }
 
-void Graph::init(QPoint value)
+void Graph::init(QVector2D value)
 {
     graph.clear();
+    parents.clear();
     this->addVertex(value);
 }
 
@@ -22,31 +23,45 @@ std::pair<Graph::EdgeIterator, Graph::EdgeIterator> Graph::getEdges()
     return boost::edges(graph);
 }
 
-QPoint Graph::vertexAt(Vertex vertex)
+QVector2D Graph::vertexAt(Vertex vertex)
 {
     return graph[vertex].value;
 }
 
-QPoint Graph::edgeSource(EdgeIterator edge)
+QVector2D Graph::edgeSource(EdgeIterator edge)
 {
     return graph[boost::source(*edge, graph)].value;
 }
 
-QPoint Graph::edgeTarget(EdgeIterator edge)
+QVector2D Graph::edgeTarget(EdgeIterator edge)
 {
     return graph[boost::target(*edge, graph)].value;
 }
 
-Graph::Vertex Graph::addVertex(QPoint value)
+Graph::Vertex Graph::addVertex(QVector2D value)
 {
-    Vertex vertex = boost::add_vertex(graph);
-    graph[vertex].value = value;
-    return vertex;
+    last = boost::add_vertex(graph);
+    graph[last].value = value;
+    return last;
 }
 
 Graph::Edge Graph::addEdge(Vertex v, Vertex u)
 {
     boost::add_edge(v, u, graph);
+    parents[u] = v;
+}
+
+Graph::Vertex Graph::parent(Vertex child)
+{
+    if (parents.at(child)) {
+        return parents[child];
+    }
+    return child;
+}
+
+Graph::Vertex Graph::getLast()
+{
+    return last;
 }
 
 void Graph::debug()

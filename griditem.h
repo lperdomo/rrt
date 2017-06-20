@@ -22,8 +22,9 @@ public:
     void resetTarget();
     bool isTarget(qreal x, qreal y);
     void setGraph(Graph *graph);
-    void setCSpace(std::vector<std::vector<bool> > Cspace);
+    void setCSpace(std::vector<std::vector<bool> > cspace);
     bool isFree(qreal x, qreal y);
+    void setDrawPath(bool drawPath);
     void zoomIn();
     void zoomOut();
     double scale;
@@ -36,7 +37,8 @@ private:
     QPoint source;
     QPoint target;
     Graph *graph;
-    std::vector<std::vector<bool> > Cspace;
+    std::vector<std::vector<bool> > cspace;
+    bool drawPath;
 };
 
 #endif // GRIDITEM_H

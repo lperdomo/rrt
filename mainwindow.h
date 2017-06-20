@@ -23,6 +23,7 @@ public:
     QToolButton *getButtonObs();
     QLineEdit *getLineK();
     QLineEdit *getLineStep();
+    QLineEdit *getLineBias();
     QLineEdit *getLineObstacles();
     void searchMessage(bool success);
     void resetMessage();
@@ -32,6 +33,7 @@ private:
     QToolButton *buttonObs;
     QLineEdit *lineK;
     QLineEdit *lineStep;
+    QLineEdit *lineBias;
     QLineEdit *lineObstacles;
     QLabel *labelSearch;
 };

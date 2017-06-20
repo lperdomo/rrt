@@ -24,10 +24,10 @@ void GridItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
 {
     painter->scale(scale, scale);
 
-    if (Cspace.size() > 0) {
-        for (int x = 0; x < Cspace.size(); x++) {
-            for (int y = 0; y < Cspace[x].size(); y++) {
-                if (Cspace[x][y] == false) {
+    if (cspace.size() > 0) {
+        for (int x = 0; x < cspace.size(); x++) {
+            for (int y = 0; y < cspace[x].size(); y++) {
+                if (cspace[x][y] == false) {
                     painter->setPen(QPen(QColor(0, 0, 0)));
                     painter->setBrush(QBrush(QColor(0, 0, 0)));
                     painter->drawRect(Cell::size*x, Cell::size*y, Cell::size, Cell::size);
@@ -38,11 +38,26 @@ void GridItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
 
     if (graph) {
         for (std::pair<Graph::VertexIterator, Graph::VertexIterator> it = graph->getVertices(); it.first != it.second; ++it.first) {
-            //std::cout << "x" << graph.vertexAt(*it.first).x() << " y" << graph.vertexAt(*it.first).y() << std::endl;
-            painter->setPen(QPen(QColor(0, 0, 200)));
-            painter->setBrush(QBrush(QColor(0, 0, 200)));
+            if (drawPath) {
+                painter->setPen(QPen(QColor(0, 100, 240)));
+                painter->setBrush(QBrush(QColor(0, 100, 240)));
+            } else {
+                painter->setPen(QPen(QColor(0, 100, 240)));
+                painter->setBrush(QBrush(QColor(0, 100, 240)));
+            }
             painter->drawRect(Cell::size*graph->vertexAt(*it.first).x()
                               , Cell::size*graph->vertexAt(*it.first).y(), Cell::size, Cell::size);
+        }
+    }
+
+    if (drawPath) {
+        Graph::Vertex current = graph->getLast();
+        while (current != graph->parent(current)) {
+            painter->setPen(QPen(QColor(255, 0, 0)));
+            painter->setBrush(QBrush(QColor(255, 0, 0)));
+            painter->drawRect(Cell::size*graph->vertexAt(current).x()
+                              , Cell::size*graph->vertexAt(current).y(), Cell::size, Cell::size);
+            current = graph->parent(current);
         }
     }
 
@@ -56,9 +71,6 @@ void GridItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
     if (!source.isNull()) {
         painter->setPen(QPen(QColor(0, 220, 0)));
         painter->setBrush(QBrush(QColor(0, 220, 0)));
-        /*painter->drawRect(Cell::size*round(source.x()/Cell::size),
-                      Cell::size*round(source.y()/Cell::size),
-                      Cell::size, Cell::size);*/
         painter->drawRect(Cell::size*round(source.x()/Cell::size)-Cell::size,
                       Cell::size*round(source.y()/Cell::size)-Cell::size,
                       Cell::size*2, Cell::size*2);        
@@ -66,9 +78,7 @@ void GridItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
     if (!target.isNull()) {
         painter->setPen(QPen(QColor(220, 0, 0)));
         painter->setBrush(QBrush(QColor(220, 0, 0)));
-        /*painter->drawRect(Cell::size*round(target.x()/Cell::size),
-                      Cell::size*round(target.y()/Cell::size),
-                      Cell::size, Cell::size);*/
+
         painter->drawRect(Cell::size*round(target.x()/Cell::size)-Cell::size,
                       Cell::size*round(target.y()/Cell::size)-Cell::size,
                       Cell::size*2, Cell::size*2);
@@ -87,7 +97,6 @@ void GridItem::zoomOut()
 
 void GridItem::setSource(qreal x, qreal y)
 {
-    std::cout << "x" << x << " y" << y << std::endl;
     if (this->isFree(x, y)) {
         source.setX(x);
         source.setY(y);
@@ -145,7 +154,7 @@ bool GridItem::isTarget(qreal x, qreal y)
 bool GridItem::isFree(qreal x, qreal y)
 {
     if (x > width-Cell::size || y > height-Cell::size || x <= Cell::size+2 || y <= Cell::size+2) return false;
-    return Cspace[round(x/Cell::size)][round(y/Cell::size)];
+    return cspace[round(x/Cell::size)][round(y/Cell::size)];
 }
 
 void GridItem::setGraph(Graph *graph)
@@ -153,7 +162,12 @@ void GridItem::setGraph(Graph *graph)
     this->graph = graph;
 }
 
-void GridItem::setCSpace(std::vector<std::vector<bool> > Cspace)
+void GridItem::setCSpace(std::vector<std::vector<bool> > cspace)
 {
-   this->Cspace = Cspace;
+   this->cspace = cspace;
+}
+
+void GridItem::setDrawPath(bool drawPath)
+{
+    this->drawPath = drawPath;
 }

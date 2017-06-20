@@ -1,7 +1,8 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include <QPoint>
+#include <QVector2D>
+#include <map>
 
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/adjacency_iterator.hpp>
@@ -11,11 +12,12 @@ class Graph
 public:
     Graph();
     struct VertexElement {
-      QPoint value;
+        QVector2D value;
+
     };
 
     struct EdgeElement {
-      int value;
+        int value;
     };
 
     typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS, VertexElement, EdgeElement> BGraph;
@@ -23,17 +25,21 @@ public:
     typedef boost::graph_traits<BGraph>::vertex_iterator VertexIterator;
     typedef boost::graph_traits<BGraph>::edge_descriptor Edge;
     typedef boost::graph_traits<BGraph>::edge_iterator EdgeIterator;
-    void init(QPoint value);
+    void init(QVector2D value);
     std::pair<VertexIterator, VertexIterator> getVertices();
     std::pair<EdgeIterator, EdgeIterator> getEdges();
-    QPoint vertexAt(Vertex v);
-    Vertex addVertex(QPoint value);
+    QVector2D vertexAt(Vertex v);
+    Vertex addVertex(QVector2D value);
     Edge addEdge(Vertex v, Vertex u);
-    QPoint edgeSource(EdgeIterator edge);
-    QPoint edgeTarget(EdgeIterator edge);
+    QVector2D edgeSource(EdgeIterator edge);
+    QVector2D edgeTarget(EdgeIterator edge);
+    Vertex parent(Vertex child);
+    Vertex getLast();
     void debug();
 private:
     BGraph graph;
+    std::map<Vertex, Vertex> parents;
+    Vertex last;
 };
 
 #endif // GRAPH_H

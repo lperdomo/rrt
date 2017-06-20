@@ -31,6 +31,8 @@ public slots:
 //    void setSourcePoint(int x, int y);
     void doWorldGeneration();
     void doPathPlanning();
+    void showResult();
+    void stopThread();
 };
 
 #endif // CONTROLLER_H
