@@ -41,8 +41,8 @@ void Controller::doWorldGeneration()
     window.resetMessage();
     cspace->setObstacles(window.getLineObstacles()->text().toInt());
     cspace->generateCSpace();
-    scene->getGridItem()->setGraph(NULL);
     scene->getGridItem()->setDrawPath(false);
+    scene->getGridItem()->resetGraph();
     scene->getGridItem()->resetSource();
     scene->getGridItem()->resetTarget();
     scene->getGridItem()->setCSpace(cspace->getCSpace());
@@ -53,12 +53,17 @@ void Controller::doPathPlanning()
 {
     window.resetMessage();
     scene->getGridItem()->setDrawPath(false);
+
     rrt->setK(window.getLineK()->text().toInt());
     rrt->setStep(window.getLineStep()->text().toInt());
     rrt->setBias(window.getLineBias()->text().toInt());
-    rrt->setCSpace(cspace);
+
+    if (!rrt->getXEnd().isNull()) cspace->dismarkTarget(rrt->getXEnd().x(), rrt->getXEnd().y());
     rrt->setXInit(QVector2D(scene->getGridItem()->getSource()));
     rrt->setXEnd(QVector2D(scene->getGridItem()->getTarget()));
+    cspace->markTarget(rrt->getXEnd().x(), rrt->getXEnd().y());
+    rrt->setCSpace(cspace);
+
     rrt->moveToThread(thread);
     thread->start();
 }
@@ -66,6 +71,7 @@ void Controller::doPathPlanning()
 void Controller::showResult()
 {
     if (!scene->getGridItem()->getTarget().isNull()) {
+        scene->getGridItem()->setFoundTarget(rrt->isFound());
         window.searchMessage(rrt->isFound());
     }
     scene->getGridItem()->setGraph(rrt->getT());

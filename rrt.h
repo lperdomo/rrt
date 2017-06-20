@@ -19,6 +19,7 @@ public:
     void setCSpace(CSpace *cspace);
     void setXInit(QVector2D XInit);
     void setXEnd(QVector2D XEnd);
+    QVector2D getXEnd();
     void setK(int K);
     int getK();
     void setStep(int step);
@@ -38,13 +39,11 @@ private:
     QVector2D XRand;
     QVector2D XNear;
     QVector2D XNew;
-    std::vector<QVector2D> transition;
     bool found;
     void randomState();
     Graph::Vertex nearestNeighbour();
     void newState();
     bool validTransition(QVector2D p1, QVector2D p2);
-    void addTransition(Graph::Vertex current);
     bool isXEnd(QVector2D current);
 signals:
     void iteration();

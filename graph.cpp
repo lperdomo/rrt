@@ -8,9 +8,14 @@ Graph::Graph()
 
 void Graph::init(QVector2D value)
 {
+    this->clear();
+    this->addVertex(value);
+}
+
+void Graph::clear()
+{
     graph.clear();
     parents.clear();
-    this->addVertex(value);
 }
 
 std::pair<Graph::VertexIterator, Graph::VertexIterator> Graph::getVertices()
@@ -62,6 +67,11 @@ Graph::Vertex Graph::parent(Vertex child)
 Graph::Vertex Graph::getLast()
 {
     return last;
+}
+
+int Graph::size()
+{
+    return boost::num_vertices(graph);
 }
 
 void Graph::debug()

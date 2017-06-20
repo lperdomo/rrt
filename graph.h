@@ -26,6 +26,7 @@ public:
     typedef boost::graph_traits<BGraph>::edge_descriptor Edge;
     typedef boost::graph_traits<BGraph>::edge_iterator EdgeIterator;
     void init(QVector2D value);
+    void clear();
     std::pair<VertexIterator, VertexIterator> getVertices();
     std::pair<EdgeIterator, EdgeIterator> getEdges();
     QVector2D vertexAt(Vertex v);
@@ -35,6 +36,7 @@ public:
     QVector2D edgeTarget(EdgeIterator edge);
     Vertex parent(Vertex child);
     Vertex getLast();
+    int size();
     void debug();
 private:
     BGraph graph;

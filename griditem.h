@@ -22,8 +22,10 @@ public:
     void resetTarget();
     bool isTarget(qreal x, qreal y);
     void setGraph(Graph *graph);
-    void setCSpace(std::vector<std::vector<bool> > cspace);
+    void resetGraph();
+    void setCSpace(std::vector<std::vector<int> > cspace);
     bool isFree(qreal x, qreal y);
+    void setFoundTarget(bool foundTarget);
     void setDrawPath(bool drawPath);
     void zoomIn();
     void zoomOut();
@@ -36,8 +38,9 @@ private:
     qreal height;
     QPoint source;
     QPoint target;
+    bool foundTarget;
     Graph *graph;
-    std::vector<std::vector<bool> > cspace;
+    std::vector<std::vector<int> > cspace;
     bool drawPath;
 };
 

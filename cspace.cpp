@@ -31,6 +31,7 @@ int CSpace::getObstacles()
     return obstacles;
 }
 
+
 std::vector<Cell*> *CSpace::getCfree()
 {
     return Cfree;
@@ -55,10 +56,15 @@ Cell *CSpace::obstacleAt(int i)
 
 bool CSpace::isObstacle(int x, int y)
 {
-    return (Cspace[x][y] == false);
+    return (Cspace[x][y] == 2);
 }
 
-std::vector<std::vector<bool> > CSpace::getCSpace()
+bool CSpace::isTarget(int x, int y)
+{
+    return (Cspace[x][y] == -1);
+}
+
+std::vector<std::vector<int> > CSpace::getCSpace()
 {
     return Cspace;
 }
@@ -67,9 +73,9 @@ void CSpace::generateCSpace()
 {
     Cspace.clear();
     for (int i = 0; i <= width; i++) {
-        std::vector<bool> tmp;
+        std::vector<int> tmp;
         for (int j = 0; j <= height; j++) {
-            tmp.push_back(true);
+            tmp.push_back(0);
         }
         Cspace.push_back(tmp);
     }
@@ -80,13 +86,13 @@ void CSpace::generateCSpace()
 void CSpace::generateCobstacle()
 {
     for (int x = 0; x <= width; x++) {
-        Cspace[x][0] = false;
-        Cspace[x][height] = false;
+        Cspace[x][0] = 2;
+        Cspace[x][height] = 2;
     }
 
     for (int y = 0; y <= height; y++) {
-        Cspace[0][y] = false;
-        Cspace[width][y] = false;
+        Cspace[0][y] = 2;
+        Cspace[width][y] = 2;
     }
 
     srand(time(0));
@@ -97,7 +103,7 @@ void CSpace::generateCobstacle()
         limity = (obstacle.y()+limity < height ? obstacle.y()+limity : height);
         for (int i = obstacle.x(); i < limitx; i++) {
             for (int j = obstacle.y(); j < limity; j++) {
-                Cspace[i][j] = false;
+                Cspace[i][j] = 2;
             }
         }
     }
@@ -106,8 +112,30 @@ void CSpace::generateCobstacle()
     Cobstacle->clear();
     for (int x = 0; x <= width; x++) {
         for (int y = 0; y <= height; y++) {
-            if (Cspace[x][y] == true) Cfree->push_back(new Cell(x, y));
+            if (Cspace[x][y] <= 0) Cfree->push_back(new Cell(x, y));
             else Cobstacle->push_back(new Cell(x, y));
+        }
+    }
+
+    //std::random_shuffle(Cfree->begin(), Cfree->end());
+
+
+}
+
+void CSpace::dismarkTarget(int x, int y)
+{
+    for (int i = x-3; i < x+2; i++) {
+        for (int j = y-3; j < y+2; j++) {
+            Cspace[i][j] = 0;
+        }
+    }
+}
+
+void CSpace::markTarget(int x, int y)
+{
+    for (int i = x-3; i < x+2; i++) {
+        for (int j = y-3; j < y+2; j++) {
+            Cspace[i][j] = -1;
         }
     }
 }
