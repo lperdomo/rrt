@@ -67,6 +67,16 @@ int Rrt::getBias()
     return this->bias;
 }
 
+bool Rrt::isFound()
+{
+    return found;
+}
+
+Graph *Rrt::getT()
+{
+    return T;
+}
+
 void Rrt::generateRrt()
 {
     Graph::Vertex vertex;
@@ -96,16 +106,6 @@ void Rrt::generateRrt()
     this->ended();
 }
 
-bool Rrt::isFound()
-{
-    return found;
-}
-
-Graph *Rrt::getT()
-{
-    return T;
-}
-
 void Rrt::randomState()
 {
     if (bias > 0 && rand()%100 <= bias) {
@@ -125,15 +125,11 @@ Graph::Vertex Rrt::nearestNeighbour()
     double closest = -1, distance;
     Graph::Vertex vertex = 0;
     for (std::pair<Graph::VertexIterator, Graph::VertexIterator> it = T->getVertices(); it.first != it.second; ++it.first) {
-        if (T->size() > 10000) std::cout << "teste" << std::endl;
         distance = Util::euclideanDistance(T->vertexAt(*it.first), XRand);
-        if (T->size() > 10000) std::cout << "teste2" << std::endl;
         if (closest < 0 || distance < closest) {
             closest = distance;
-            if (T->size() > 10000) std::cout << "teste3" << std::endl;
             XNear.setX(T->vertexAt(*it.first).x());
             XNear.setY(T->vertexAt(*it.first).y());
-            if (T->size() > 10000) std::cout << "teste4" << std::endl;
             vertex = *it.first;
         }
     }
@@ -198,12 +194,6 @@ bool Rrt::validTransition(QVector2D p1, QVector2D p2)
 
 void Rrt::newState()
 {
-    //XNew = XNear + step * ((XRand - XNear) * 0.1);
-
-    /*QVector2D delta = XRand - XNear;
-    delta = delta / delta.lengthSquared();
-    XNew = XNear + delta * 10;*/
-
     if (Util::euclideanDistance(XNear, XRand) < step) {
         XNew = XRand;
     } else {

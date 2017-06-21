@@ -32,13 +32,14 @@ private:
     int K;
     int step;
     int bias;
+    double th;
     CSpace *cspace;
     Graph *T;
     QVector2D XInit;
     QVector2D XEnd;
     QVector2D XRand;
     QVector2D XNear;
-    QVector2D XNew;
+    QVector2D XNew;    
     bool found;
     void randomState();
     Graph::Vertex nearestNeighbour();

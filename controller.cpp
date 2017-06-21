@@ -5,7 +5,7 @@
 Controller::Controller() :
     QObject()
 {
-    cspace = new CSpace(150, 100, 5);
+    cspace = new CSpace(150, 100, 10);
     rrt = new Rrt();
     thread = new QThread();
     thread->connect(thread, SIGNAL(started()), rrt, SLOT(generateRrt()));
@@ -52,20 +52,26 @@ void Controller::doWorldGeneration()
 void Controller::doPathPlanning()
 {
     window.resetMessage();
-    scene->getGridItem()->setDrawPath(false);
+    if (thread->isRunning()) {
+        rrt->setK(1);
+     } else {
+        window.getButtonRun()->setText("Stop");
+        window.getButtonObs()->setEnabled(false);
+        scene->getGridItem()->setDrawPath(false);
 
-    rrt->setK(window.getLineK()->text().toInt());
-    rrt->setStep(window.getLineStep()->text().toInt());
-    rrt->setBias(window.getLineBias()->text().toInt());
+        rrt->setK(window.getLineK()->text().toInt());
+        rrt->setStep(window.getLineStep()->text().toInt());
+        rrt->setBias(window.getLineBias()->text().toInt());
+        rrt->setXInit(QVector2D(scene->getGridItem()->getSource()));
 
-    if (!rrt->getXEnd().isNull()) cspace->dismarkTarget(rrt->getXEnd().x(), rrt->getXEnd().y());
-    rrt->setXInit(QVector2D(scene->getGridItem()->getSource()));
-    rrt->setXEnd(QVector2D(scene->getGridItem()->getTarget()));
-    cspace->markTarget(rrt->getXEnd().x(), rrt->getXEnd().y());
-    rrt->setCSpace(cspace);
+        if (!rrt->getXEnd().isNull()) cspace->dismarkTarget(rrt->getXEnd().x(), rrt->getXEnd().y());
+        rrt->setXEnd(QVector2D(scene->getGridItem()->getTarget()));
+        if (!rrt->getXEnd().isNull()) cspace->markTarget(rrt->getXEnd().x(), rrt->getXEnd().y());
+        rrt->setCSpace(cspace);
 
-    rrt->moveToThread(thread);
-    thread->start();
+        rrt->moveToThread(thread);
+        thread->start();
+    }
 }
 
 void Controller::showResult()
@@ -80,9 +86,11 @@ void Controller::showResult()
 
 void Controller::stopThread()
 {
+    thread->exit();
+    window.getButtonRun()->setText("Run");
+    window.getButtonObs()->setEnabled(true);
     scene->getGridItem()->setDrawPath(true);
     scene->getGridItem()->update();
-    thread->exit();
 }
 
 void Controller::showView()

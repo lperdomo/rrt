@@ -214,6 +214,8 @@ void GridItem::setGraph(Graph *graph)
 
 void GridItem::resetGraph()
 {
+    foundTarget = false;
+    drawPath = false;
     if (graph) {
         this->graph->clear();
     }
