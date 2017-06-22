@@ -35,12 +35,14 @@ public:
     QVector2D edgeSource(EdgeIterator edge);
     QVector2D edgeTarget(EdgeIterator edge);
     Vertex parent(Vertex child);
+    Vertex getFirst();
     Vertex getLast();
     int size();
     void debug();
 private:
     BGraph graph;
     std::map<Vertex, Vertex> parents;
+    Vertex first;
     Vertex last;
 };
 

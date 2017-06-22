@@ -9,7 +9,8 @@ Graph::Graph()
 void Graph::init(QVector2D value)
 {
     this->clear();
-    this->addVertex(value);
+    first = this->addVertex(value);
+    parents[first] = first;
 }
 
 void Graph::clear()
@@ -67,6 +68,11 @@ Graph::Vertex Graph::parent(Vertex child)
 Graph::Vertex Graph::getLast()
 {
     return last;
+}
+
+Graph::Vertex Graph::getFirst()
+{
+    return first;
 }
 
 int Graph::size()

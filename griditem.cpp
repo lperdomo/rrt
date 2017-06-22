@@ -91,13 +91,8 @@ void GridItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
                 }
             }
             for (std::pair<Graph::VertexIterator, Graph::VertexIterator> it = graph->getVertices(); it.first != it.second; ++it.first) {
-                if (drawPath && foundTarget) {
-                    painter->setPen(QPen(QColor(0, 100, 240, 200)));
-                    painter->setBrush(QBrush(QColor(0, 100, 240, 200)));
-                } else {
-                    painter->setPen(QPen(QColor(0, 100, 240)));
-                    painter->setBrush(QBrush(QColor(0, 100, 240)));
-                }
+                painter->setPen(QPen(QColor(0, 100, 240)));
+                painter->setBrush(QBrush(QColor(0, 100, 240)));
                 painter->drawRect(Cell::size*graph->vertexAt(*it.first).x()
                                   , Cell::size*graph->vertexAt(*it.first).y(), Cell::size, Cell::size);
             }
@@ -106,22 +101,75 @@ void GridItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
 
     if (drawPath && foundTarget) {
         Graph::Vertex current = graph->getLast();
-        while (current != graph->parent(current)) {
-            painter->setPen(QPen(QColor(240, 100, 240)));
-            painter->setBrush(QBrush(QColor(240, 100, 240)));
+        Graph::Vertex parent = graph->parent(current);;
+        while (true) {
+            painter->setPen(QPen(QColor(220, 100, 100)));
+            painter->setBrush(QBrush(QColor(220, 100, 100)));
+            int dx = graph->vertexAt(parent).x() - graph->vertexAt(current).x(), dy = graph->vertexAt(parent).y() - graph->vertexAt(current).y()
+               , dx1 = abs(dx), dy1 = abs(dy)
+               , px = 2*dy1-dx1, py = 2*dx1-dy1
+               , x, y, xe, ye;
+            if (dy1 <= dx1) {
+                if (dx >= 0) {
+                    x = graph->vertexAt(current).x();
+                    y = graph->vertexAt(current).y();
+                    xe = graph->vertexAt(parent).x();
+                } else {
+                    x = graph->vertexAt(parent).x();
+                    y = graph->vertexAt(parent).y();
+                    xe = graph->vertexAt(current).x();
+                }
+                for (int i = 0; x < xe; i++) {
+                    x++;
+                    if (px < 0) px += 2*dy1;
+                    else {
+                        if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) y++;
+                        else y--;
+                        px += 2*(dy1-dx1);
+                    }
+                    painter->drawRect(Cell::size*x
+                                      , Cell::size*y, Cell::size, Cell::size);
+                }
+            } else {
+                if (dy >= 0) {
+                    x = graph->vertexAt(current).x();
+                    y = graph->vertexAt(current).y();
+                    ye = graph->vertexAt(parent).y();
+                } else {
+                    x = graph->vertexAt(parent).x();
+                    y = graph->vertexAt(parent).y();
+                    ye = graph->vertexAt(current).y();
+                }
+                for (int i = 0; y < ye; i++) {
+                    y++;
+                    if (py <= 0) py += 2*dx1;
+                    else {
+                        if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) x++;
+                        else x--;
+                        py += 2*(dx1-dy1);
+                    }
+                    painter->drawRect(Cell::size*x
+                                      , Cell::size*y, Cell::size, Cell::size);
+                }
+            }
+            painter->setPen(QPen(QColor(220, 0, 0)));
+            painter->setBrush(QBrush(QColor(220, 0, 0)));
             painter->drawRect(Cell::size*graph->vertexAt(current).x()
                               , Cell::size*graph->vertexAt(current).y(), Cell::size, Cell::size);
             current = graph->parent(current);
+            if (parent == graph->getFirst()) {
+                break;
+            } else if (current == graph->parent(current)) {
+                parent = graph->getFirst();
+            } else {
+                parent = graph->parent(current);
+            }
         }
-        painter->setPen(QPen(QColor(240, 100, 240)));
-        painter->setBrush(QBrush(QColor(240, 100, 240)));
-        painter->drawRect(Cell::size*graph->vertexAt(current).x()
-                          , Cell::size*graph->vertexAt(current).y(), Cell::size, Cell::size);
     }
 
     if (!source.isNull()) {
-        painter->setPen(QPen(QColor(0, 220, 0)));
-        painter->setBrush(QBrush(QColor(0, 220, 0)));
+        painter->setPen(QPen(QColor(220, 0, 0)));
+        painter->setBrush(QBrush(QColor(220, 0, 0)));
         painter->drawRect(Cell::size*round(source.x()/Cell::size)-Cell::size,
                       Cell::size*round(source.y()/Cell::size)-Cell::size,
                       Cell::size*2, Cell::size*2);        
