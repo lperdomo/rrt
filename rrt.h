@@ -8,7 +8,7 @@
 #include "util.h"
 #include "graph.h"
 #include "cspace.h"
-#include "cell.h"
+#include "state.h"
 
 class Rrt : public QObject
 {
@@ -26,26 +26,30 @@ public:
     int getStep();
     void setBias(int bias);
     int getBias();
+    void setMode(int mode);
+    int getMode();
     bool isFound();
     Graph *getT();
+    std::vector<QVector2D> getPaths();
 private:
     int K;
     int step;
     int bias;
-    double th;
     CSpace *cspace;
     Graph *T;
-    QVector2D XInit;
-    QVector2D XEnd;
-    QVector2D XRand;
-    QVector2D XNear;
-    QVector2D XNew;    
+    State XInit;
+    State XEnd;
+    State XRand;
+    State XNear;
     bool found;
+    int mode;
+    std::vector<QVector2D> paths;
     void randomState();
     Graph::Vertex nearestNeighbour();
-    void newState();
-    bool validTransition(QVector2D p1, QVector2D p2);
-    bool isXEnd(QVector2D current);
+    State newState(StateInput u);
+    StateInput selectInput();
+    bool validTransition(State p1, State p2);
+
 signals:
     void iteration();
     void ended();

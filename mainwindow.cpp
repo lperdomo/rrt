@@ -11,11 +11,15 @@ MainWindow::MainWindow(QWidget *parent) :
     buttonRun->setText("Run");
     ui->mainToolBar->addWidget(buttonRun);
 
-    buttonObs = new QToolButton(this);
-    buttonObs->setText("World");
-    ui->mainToolBar->addWidget(buttonObs);
+    QLabel *labelMode = new QLabel(this);
+    labelMode->setText("Mode:");
+    ui->mainToolBar->addWidget(labelMode);
 
-    ui->mainToolBar->addSeparator();
+    comboMode = new QComboBox(this);
+    comboMode->setFixedWidth(100);
+    comboMode->addItem("Holonomic", QVariant(1));
+    comboMode->addItem("NH-Dubins", QVariant(2));
+    ui->mainToolBar->addWidget(comboMode);
 
     QLabel *labelK = new QLabel(this);
     labelK->setText("K:");
@@ -41,6 +45,8 @@ MainWindow::MainWindow(QWidget *parent) :
     lineBias->setFixedWidth(60);
     ui->mainToolBar->addWidget(lineBias);
 
+    ui->mainToolBar->addSeparator();
+
     QLabel *labelObstacles = new QLabel(this);
     labelObstacles->setText("Obstacles:");
     ui->mainToolBar->addWidget(labelObstacles);
@@ -49,10 +55,14 @@ MainWindow::MainWindow(QWidget *parent) :
     lineObstacles->setFixedWidth(60);
     ui->mainToolBar->addWidget(lineObstacles);
 
+    buttonObs = new QToolButton(this);
+    buttonObs->setText("Generate");
+    ui->mainToolBar->addWidget(buttonObs);
+
     ui->mainToolBar->addSeparator();
 
     labelSearch = new QLabel(this);
-    ui->mainToolBar->addWidget(labelSearch);
+    ui->statusBar->addWidget(labelSearch);
 
     this->connect(new QShortcut(QKeySequence(Qt::Key_Space), this), SIGNAL(activated()), buttonRun, SLOT(click()));
 }
@@ -90,6 +100,11 @@ QLineEdit *MainWindow::getLineBias()
 QLineEdit *MainWindow::getLineObstacles()
 {
     return lineObstacles;
+}
+
+QComboBox *MainWindow::getComboMode()
+{
+    return comboMode;
 }
 
 void MainWindow::resetMessage()

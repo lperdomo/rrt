@@ -13,7 +13,7 @@
 class Scene : public QGraphicsScene
 {
 public:
-    Scene(int width, int height);
+    Scene(int width, int height, int cellSize);
     ~Scene();
     GridItem *getGridItem();
 private:

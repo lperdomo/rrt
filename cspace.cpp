@@ -7,8 +7,8 @@ CSpace::CSpace(int width, int height, int obstacles)
     this->width = width;
     this->height = height;
     this->obstacles = obstacles;
-    Cfree = new std::vector<Cell*>();
-    Cobstacle = new std::vector<Cell*>();
+    Cfree = new std::vector<QVector2D>();
+    Cobstacle = new std::vector<QVector2D>();
 }
 
 int CSpace::getWidth()
@@ -32,26 +32,26 @@ int CSpace::getObstacles()
 }
 
 
-std::vector<Cell*> *CSpace::getCfree()
+std::vector<QVector2D> *CSpace::getCfree()
 {
     return Cfree;
 }
 
-Cell *CSpace::freeAt(int i)
+QVector2D CSpace::freeAt(int i)
 {
     if (Cfree->size() >= i) return Cfree->at(i);
-    return NULL;
+    return QVector2D(0, 0);
 }
 
-std::vector<Cell*> *CSpace::getCobstacle()
+std::vector<QVector2D> *CSpace::getCobstacle()
 {
     return Cobstacle;
 }
 
-Cell *CSpace::obstacleAt(int i)
+QVector2D CSpace::obstacleAt(int i)
 {
     if (Cobstacle->size() >= i) return Cobstacle->at(i);
-    return NULL;
+    return QVector2D(0, 0);
 }
 
 bool CSpace::isObstacle(int x, int y)
@@ -97,7 +97,7 @@ void CSpace::generateCobstacle()
 
     srand(time(0));
     for (int o = 0; o < obstacles; o++) {
-        Cell obstacle(round((rand()%(80+5-1)+5)*width/100), round((rand()%(80+5-1)+5)*height/100));
+        QVector2D obstacle(round((rand()%(80+5-1)+5)*width/100), round((rand()%(80+5-1)+5)*height/100));
         int limitx = rand()%(20+1-10)+10, limity = rand()%(20+1-10)+10;
         limitx = (obstacle.x()+limitx < width ? obstacle.x()+limitx : width);
         limity = (obstacle.y()+limity < height ? obstacle.y()+limity : height);
@@ -112,8 +112,8 @@ void CSpace::generateCobstacle()
     Cobstacle->clear();
     for (int x = 0; x <= width; x++) {
         for (int y = 0; y <= height; y++) {
-            if (Cspace[x][y] <= 0) Cfree->push_back(new Cell(x, y));
-            else Cobstacle->push_back(new Cell(x, y));
+            if (Cspace[x][y] <= 0) Cfree->push_back(QVector2D(x, y));
+            else Cobstacle->push_back(QVector2D(x, y));
         }
     }
 

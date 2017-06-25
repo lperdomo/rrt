@@ -11,13 +11,14 @@ Controller::Controller() :
     thread->connect(thread, SIGNAL(started()), rrt, SLOT(generateRrt()));
     this->connect(rrt, SIGNAL(iteration()), this, SLOT(showResult()));
     this->connect(rrt, SIGNAL(ended()), this, SLOT(stopThread()));
-    scene = new Scene(150+1, 100+1);
+    scene = new Scene(150+1, 100+1, 5);
     view = new View(scene);
     window.setFixedSize(750+15, 500+65);
     window.getLineK()->setText(QString::number(rrt->getK()));
     window.getLineStep()->setText(QString::number(rrt->getStep()));
     window.getLineBias()->setText(QString::number(rrt->getBias()));
     window.getLineObstacles()->setText(QString::number(cspace->getObstacles()));
+    window.getComboMode()->setCurrentIndex(rrt->getMode());
     this->connect(window.getButtonRun(), SIGNAL(clicked(bool)), this, SLOT(doPathPlanning()));
     this->connect(window.getButtonObs(), SIGNAL(clicked(bool)), this, SLOT(doWorldGeneration()));
 }
@@ -62,10 +63,13 @@ void Controller::doPathPlanning()
         rrt->setK(window.getLineK()->text().toInt());
         rrt->setStep(window.getLineStep()->text().toInt());
         rrt->setBias(window.getLineBias()->text().toInt());
-        rrt->setXInit(QVector2D(scene->getGridItem()->getSource()));
+        rrt->setMode(window.getComboMode()->currentIndex());
+        rrt->setXInit(QVector2D(round(scene->getGridItem()->getSource().x()/scene->getGridItem()->getCellSize())
+                    , round(scene->getGridItem()->getSource().y()/scene->getGridItem()->getCellSize())));
 
         if (!rrt->getXEnd().isNull()) cspace->dismarkTarget(rrt->getXEnd().x(), rrt->getXEnd().y());
-        rrt->setXEnd(QVector2D(scene->getGridItem()->getTarget()));
+        rrt->setXEnd(QVector2D(round(scene->getGridItem()->getTarget().x()/scene->getGridItem()->getCellSize())
+                    , round(scene->getGridItem()->getTarget().y()/scene->getGridItem()->getCellSize())));
         if (!rrt->getXEnd().isNull()) cspace->markTarget(rrt->getXEnd().x(), rrt->getXEnd().y());
         rrt->setCSpace(cspace);
 
@@ -81,6 +85,7 @@ void Controller::showResult()
         window.searchMessage(rrt->isFound());
     }
     scene->getGridItem()->setGraph(rrt->getT());
+    scene->getGridItem()->setPaths(rrt->getPaths());
     scene->getGridItem()->update();
 }
 

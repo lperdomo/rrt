@@ -5,12 +5,12 @@
 #include <QPainter>
 
 #include "graph.h"
-#include "cell.h"
+#include "util.h"
 
 class GridItem : public QGraphicsItem
 {
 public:
-    GridItem(qreal width, qreal height);
+    GridItem(qreal width, qreal height, int cellSize);
     ~GridItem();
     QRectF boundingRect() const;
     void setSource(qreal x, qreal y);
@@ -24,9 +24,12 @@ public:
     void setGraph(Graph *graph);
     void resetGraph();
     void setCSpace(std::vector<std::vector<int> > cspace);
+    void setPaths(std::vector<QVector2D> paths);
     bool isFree(qreal x, qreal y);
     void setFoundTarget(bool foundTarget);
     void setDrawPath(bool drawPath);
+    void setCellSize(double cellSize);
+    double getCellSize();
     void zoomIn();
     void zoomOut();
     double scale;
@@ -41,7 +44,9 @@ private:
     bool foundTarget;
     Graph *graph;
     std::vector<std::vector<int> > cspace;
+    std::vector<QVector2D> paths;
     bool drawPath;
+    double cellSize;
 };
 
 #endif // GRIDITEM_H

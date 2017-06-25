@@ -28,24 +28,24 @@ SOURCES += \
     scene.cpp \
     griditem.cpp \
     rrt.cpp \
-    cell.cpp \
     view.cpp \
     util.cpp \
     graph.cpp \
     cspace.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    state.cpp
 
 HEADERS += \
     controller.h \
     scene.h \
     griditem.h \
     rrt.h \
-    cell.h \
     view.h \
     util.h \
     graph.h \
     cspace.h \
-    mainwindow.h
+    mainwindow.h \
+    state.h
 
 FORMS += \
     mainwindow.ui

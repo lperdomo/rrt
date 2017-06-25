@@ -5,10 +5,11 @@
 Rrt::Rrt() :
     QObject()
 {
-    K = 10000;
+    K = 6000;
     step = 1;
     bias = 0;
     T = new Graph();
+    type = 1;
 }
 
 Rrt::~Rrt()
@@ -22,14 +23,12 @@ void Rrt::setCSpace(CSpace *cspace)
 
 void Rrt::setXInit(QVector2D XInit)
 {
-    this->XInit.setX(round(XInit.x()/Cell::size));
-    this->XInit.setY(round(XInit.y()/Cell::size));
+    this->XInit = XInit;
 }
 
 void Rrt::setXEnd(QVector2D XEnd)
 {
-    this->XEnd.setX(round(XEnd.x()/Cell::size));
-    this->XEnd.setY(round(XEnd.y()/Cell::size));
+    this->XEnd = XEnd;
 }
 
 QVector2D Rrt::getXEnd()
@@ -67,6 +66,16 @@ int Rrt::getBias()
     return this->bias;
 }
 
+void Rrt::setMode(int mode)
+{
+    this->mode = mode;
+}
+
+int Rrt::getMode()
+{
+    return mode;
+}
+
 bool Rrt::isFound()
 {
     return found;
@@ -77,9 +86,16 @@ Graph *Rrt::getT()
     return T;
 }
 
+std::vector<QVector2D> Rrt::getPaths()
+{
+    return paths;
+}
+
 void Rrt::generateRrt()
 {
     Graph::Vertex vertex;
+    State XNew;
+    paths.clear();
     found = false;
     T->init(XInit);
     for (int k = 0; (k < K && found == false); k++) {
@@ -88,9 +104,9 @@ void Rrt::generateRrt()
         //std::cout << "eeeeeee2=" << T->size() << std::endl;
         vertex = this->nearestNeighbour();
         //std::cout << "eeeeeee3" << std::endl;
-        if (Util::euclideanDistance(XRand, XNear) > step) {
+        if (Util::euclideanDistance(XRand, XNear) > 1) {
             //std::cout << "eeeeeee4" << std::endl;
-            this->newState();
+            XNew = this->newState(this->selectInput());
             //std::cout << "eeeeeee5" << std::endl;
             if (this->validTransition(XNew, XNear)) {
                 //std::cout << "eeeeeee6" << std::endl;
@@ -111,10 +127,12 @@ void Rrt::randomState()
     if (bias > 0 && rand()%100 <= bias) {
         XRand.setX(XEnd.x());
         XRand.setY(XEnd.y());
+        XRand.setTh(XEnd.th());
     } else {
         int id = rand()%cspace->getCfree()->size();
-        XRand.setX(cspace->freeAt(id)->x());
-        XRand.setY(cspace->freeAt(id)->y());
+        XRand.setX(cspace->freeAt(id).x());
+        XRand.setY(cspace->freeAt(id).y());
+        XRand.setTh(rand()%360 + (-180));
         //XRand.setX(round(drand48()*cspace->getWidth()));
         //XRand.setY(round(drand48()*cspace->getHeight()));
     }
@@ -122,92 +140,123 @@ void Rrt::randomState()
 
 Graph::Vertex Rrt::nearestNeighbour()
 {
-    double closest = -1, distance;
-    Graph::Vertex vertex = 0;
-    for (std::pair<Graph::VertexIterator, Graph::VertexIterator> it = T->getVertices(); it.first != it.second; ++it.first) {
-        distance = Util::euclideanDistance(T->vertexAt(*it.first), XRand);
-        if (closest < 0 || distance < closest) {
-            closest = distance;
-            XNear.setX(T->vertexAt(*it.first).x());
-            XNear.setY(T->vertexAt(*it.first).y());
-            vertex = *it.first;
+    if (mode == 1) {
+        double closest = -1, distance;
+        Graph::Vertex vertex = 0;
+        for (std::pair<Graph::VertexIterator, Graph::VertexIterator> it = T->getVertices(); it.first != it.second; ++it.first) {
+            distance = Util::euclideanDistance(T->vertexAt(*it.first), XRand);
+            if (closest < 0 || distance < closest) {
+                closest = distance;
+                XNear.setX(T->vertexAt(*it.first).x());
+                XNear.setY(T->vertexAt(*it.first).y());
+                vertex = *it.first;
+            }
         }
+        return vertex;
+    } else {
+        double closest = -1, distance;
+        Graph::Vertex vertex = 0;
+        for (std::pair<Graph::VertexIterator, Graph::VertexIterator> it = T->getVertices(); it.first != it.second; ++it.first) {
+            distance = Util::distanceStates(T->vertexAt(*it.first), XRand);
+            if (closest < 0 || distance < closest) {
+                closest = distance;
+                XNear.setX(T->vertexAt(*it.first).x());
+                XNear.setY(T->vertexAt(*it.first).y());
+                vertex = *it.first;
+            }
+        }
+        return vertex;
     }
-    return vertex;
 }
 
-bool Rrt::validTransition(QVector2D p1, QVector2D p2)
+bool Rrt::validTransition(State p1, State p2)
 {
-    int dx = p2.x() - p1.x(), dy = p2.y() - p1.y()
-       , dx1 = abs(dx), dy1 = abs(dy)
-       , px = 2*dy1-dx1, py = 2*dx1-dy1
-       , x, y, xe, ye;
-    if (dy1 <= dx1) {
-        if (dx >= 0) {
-            x = p1.x();
-            y = p1.y();
-            xe = p2.x();
-        } else {
-            x = p2.x();
-            y = p2.y();
-            xe = p1.x();
+    if (mode == 1) {
+        //std::vector<QVector2D> path = Util::bresenham(p1, p2);
+        std::vector<State> path = Util::dubins(p1, p2, step);
+        for (int i = 0; i < path.size(); i++) {
+            if (cspace->isObstacle(path[i].x(), path[i].y())) return false;
+            if (cspace->isTarget(path[i].x(), path[i].y())) found = true;
         }
-        if (cspace->isObstacle(x, y)) return false;
-        this->isXEnd(QVector2D(x, y));
-        for (int i = 0; x < xe; i++) {
-            x++;
-            if (px < 0) px += 2*dy1;
-            else {
-                if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) y++;
-                else y--;
-                px += 2*(dy1-dx1);
-            }
-            if (cspace->isObstacle(x, y)) return false;
-            this->isXEnd(QVector2D(x, y));
+        for (int i = 0; i < path.size(); i++) {
+            paths.push_back(QVector2D(path[i].x(), path[i].y()));
         }
-    } else {
-        if (dy >= 0) {
-            x = p1.x();
-            y = p1.y();
-            ye = p2.y();
-        } else {
-            x = p2.x();
-            y = p2.y();
-            ye = p1.y();
-        }
-        if (cspace->isObstacle(x, y)) return false;
-        this->isXEnd(QVector2D(x, y));
-        for (int i = 0; y < ye; i++) {
-            y++;
-            if (py <= 0) py += 2*dx1;
-            else {
-                if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) x++;
-                else x--;
-                py += 2*(dx1-dy1);
-            }
-            if (cspace->isObstacle(x, y)) return false;
-            this->isXEnd(QVector2D(x, y));
-        }
+
     }
     return true;
 }
 
-void Rrt::newState()
+State Rrt::newState(StateInput u)
 {
-    if (Util::euclideanDistance(XNear, XRand) < step) {
-        XNew = XRand;
-    } else {
+    if (mode == 1) {
         double th = atan2(XRand.y()-XNear.y(),XRand.x()-XNear.x());
-        XNew.setX(round(XNear.x()+step*cos(th)));
-        XNew.setY(round(XNear.y()+step*sin(th)));
+        if (Util::euclideanDistance(XNear, XRand) < step) {
+            return State(XRand.x(), XRand.y(), th);
+        } else {
+            return State(round(XNear.x()+step*cos(th)), round(XNear.y()+step*sin(th)), th);
+        }
+    } else {
+        State n;
+        n.setX(XNear.x()+u.v()*step*cos(XNear.th())*cos(u.th()));
+        n.setY(XNear.y()+u.v()*step*sin(XNear.th())*cos(u.th()));
+        n.setTh(XNear.th()+(u.v()*step/1)*sin(u.th()));
+        return n;
     }
 }
 
-bool Rrt::isXEnd(QVector2D current)
+
+
+
+
+
+
+
+
+
+StateInput Rrt::selectInput()
 {
-    if (cspace->isTarget(current.x(), current.y())) {
-        found = true;
-        return true;
+    State p;
+    StateInput u, optu;
+    double fi[3];
+    int v[2]={1, -1};
+    fi[0] = atan(1*(XNear.th()-XRand.th())/((XNear.x()-XRand.x())*cos(XNear.th())+(XNear.y()-XRand.y())*sin(XNear.th())));
+    fi[1] = atan(1*(XNear.th()-XRand.th()+2*M_PI)/(((XNear.x()-XRand.x())*cos(XNear.th()))+(XNear.y()-XRand.y())*sin(XNear.th())));
+    fi[2] = atan(1*(XNear.th()-XRand.th()-2*M_PI)/(((XNear.x()-XRand.x())*cos(XNear.th()))+(XNear.y()-XRand.y())*sin(XNear.th())));
+
+    double dr, d = -1;
+    double MAX = M_PI/4;
+    for (int i=0; i<2; i++) {
+        for (int j=0; j<3; j++) {
+            u.setV(v[i]);
+            u.setTh(fi[j]);
+            if (u.th() < -MAX) u.setTh(-MAX);
+            else if (u.th() > MAX) u.setTh(MAX);
+
+            p = this->newState(u);
+
+            dr = Util::distanceStates(p, XRand);
+            if (d < 0 || dr < d) {
+                d = dr;
+                optu = u;
+            }
+        }
     }
-    return false;
+
+    StateInput u1 = optu, u2 = optu;
+    State p1, p2;
+    u1.setTh(u1.th()+M_PI/20);
+    u2.setTh(u2.th()-M_PI/20);
+    p1 = this->newState(u1);
+    p2 = this->newState(u2);
+
+    double d1, d2;
+    d1 = Util::distanceStates(p1, XRand);
+    d2 = Util::distanceStates(p2, XRand);
+    u1.setTh(u1.th()+M_PI/20);
+    u2.setTh(u2.th()-M_PI/20);
+    p1 = this->newState(u1);
+    p2 = this->newState(u2);
+
+    if (d1 <= d2) return u1;
+    return u2;
 }

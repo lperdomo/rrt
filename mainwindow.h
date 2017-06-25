@@ -7,6 +7,7 @@
 #include <QLineEdit>
 #include <QShortcut>
 #include <QKeySequence>
+#include <QComboBox>
 
 namespace Ui {
 class MainWindow;
@@ -25,6 +26,7 @@ public:
     QLineEdit *getLineStep();
     QLineEdit *getLineBias();
     QLineEdit *getLineObstacles();
+    QComboBox *getComboMode();
     void searchMessage(bool success);
     void resetMessage();
 private:
@@ -35,6 +37,7 @@ private:
     QLineEdit *lineStep;
     QLineEdit *lineBias;
     QLineEdit *lineObstacles;
+    QComboBox *comboMode;
     QLabel *labelSearch;
 };
 

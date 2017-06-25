@@ -6,7 +6,7 @@ Graph::Graph()
 {
 }
 
-void Graph::init(QVector2D value)
+void Graph::init(State value)
 {
     this->clear();
     first = this->addVertex(value);
@@ -29,22 +29,22 @@ std::pair<Graph::EdgeIterator, Graph::EdgeIterator> Graph::getEdges()
     return boost::edges(graph);
 }
 
-QVector2D Graph::vertexAt(Vertex vertex)
+State Graph::vertexAt(Vertex vertex)
 {
     return graph[vertex].value;
 }
 
-QVector2D Graph::edgeSource(EdgeIterator edge)
+State Graph::edgeSource(EdgeIterator edge)
 {
     return graph[boost::source(*edge, graph)].value;
 }
 
-QVector2D Graph::edgeTarget(EdgeIterator edge)
+State Graph::edgeTarget(EdgeIterator edge)
 {
     return graph[boost::target(*edge, graph)].value;
 }
 
-Graph::Vertex Graph::addVertex(QVector2D value)
+Graph::Vertex Graph::addVertex(State value)
 {
     last = boost::add_vertex(graph);
     graph[last].value = value;

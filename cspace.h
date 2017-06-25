@@ -1,11 +1,11 @@
 #ifndef SPACE_H
 #define SPACE_H
 
+#include <QVector2D>
 #include <vector>
 #include <deque>
 
 #include "util.h"
-#include "cell.h"
 
 class CSpace
 {
@@ -15,11 +15,11 @@ public:
     int getHeight();
     void setObstacles(int obstacles);
     int getObstacles();
-    std::vector<Cell*> *getCfree();
-    std::vector<Cell*> *getCobstacle();
+    std::vector<QVector2D> *getCfree();
+    std::vector<QVector2D> *getCobstacle();
     std::vector<std::vector<int> > getCSpace();
-    Cell *freeAt(int i);
-    Cell *obstacleAt(int i);
+    QVector2D freeAt(int i);
+    QVector2D obstacleAt(int i);
     void generateCSpace();
     bool isObstacle(int x, int y);
     bool isTarget(int x, int y);
@@ -30,8 +30,8 @@ private:
     int height;
     int obstacles;
     std::vector<std::vector<int> > Cspace;
-    std::vector<Cell*> *Cfree;
-    std::vector<Cell*> *Cobstacle;
+    std::vector<QVector2D> *Cfree;
+    std::vector<QVector2D> *Cobstacle;
     void generateCobstacle();
 };
 

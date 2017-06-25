@@ -2,11 +2,12 @@
 
 #include <iostream>
 
-GridItem::GridItem(qreal width, qreal height) :
+GridItem::GridItem(qreal width, qreal height, int cellSize) :
     QGraphicsItem()
 {
     this->width = width;
     this->height = height;
+    this->cellSize = cellSize;
     scale = 1;
     foundTarget = false;
     graph = NULL;
@@ -31,7 +32,7 @@ void GridItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
                 if (cspace[x][y] == 2) {
                     painter->setPen(QPen(QColor(0, 0, 0)));
                     painter->setBrush(QBrush(QColor(0, 0, 0)));
-                    painter->drawRect(Cell::size*x, Cell::size*y, Cell::size, Cell::size);
+                    painter->drawRect(cellSize*x, cellSize*y, cellSize, cellSize);
                 }
             }
         }
@@ -42,59 +43,16 @@ void GridItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
             for (std::pair<Graph::EdgeIterator, Graph::EdgeIterator> it = graph->getEdges(); it.first != it.second; ++it.first) {
                 painter->setPen(QPen(QColor(0, 200, 240)));
                 painter->setBrush(QBrush(QColor(0, 200, 240)));
-                int dx = graph->edgeTarget(it.first).x() - graph->edgeSource(it.first).x(), dy = graph->edgeTarget(it.first).y() - graph->edgeSource(it.first).y()
-                   , dx1 = abs(dx), dy1 = abs(dy)
-                   , px = 2*dy1-dx1, py = 2*dx1-dy1
-                   , x, y, xe, ye;
-                if (dy1 <= dx1) {
-                    if (dx >= 0) {
-                        x = graph->edgeSource(it.first).x();
-                        y = graph->edgeSource(it.first).y();
-                        xe = graph->edgeTarget(it.first).x();
-                    } else {
-                        x = graph->edgeTarget(it.first).x();
-                        y = graph->edgeTarget(it.first).y();
-                        xe = graph->edgeSource(it.first).x();
-                    }
-                    for (int i = 0; x < xe; i++) {
-                        x++;
-                        if (px < 0) px += 2*dy1;
-                        else {
-                            if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) y++;
-                            else y--;
-                            px += 2*(dy1-dx1);
-                        }
-                        painter->drawRect(Cell::size*x
-                                          , Cell::size*y, Cell::size, Cell::size);
-                    }
-                } else {
-                    if (dy >= 0) {
-                        x = graph->edgeSource(it.first).x();
-                        y = graph->edgeSource(it.first).y();
-                        ye = graph->edgeTarget(it.first).y();
-                    } else {
-                        x = graph->edgeTarget(it.first).x();
-                        y = graph->edgeTarget(it.first).y();
-                        ye = graph->edgeSource(it.first).y();
-                    }
-                    for (int i = 0; y < ye; i++) {
-                        y++;
-                        if (py <= 0) py += 2*dx1;
-                        else {
-                            if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) x++;
-                            else x--;
-                            py += 2*(dx1-dy1);
-                        }
-                        painter->drawRect(Cell::size*x
-                                          , Cell::size*y, Cell::size, Cell::size);
-                    }
+                for (int i = 0; i < paths.size(); i++) {
+                    painter->drawRect(cellSize*paths[i].x(), cellSize*paths[i].y(), cellSize, cellSize);
                 }
             }
             for (std::pair<Graph::VertexIterator, Graph::VertexIterator> it = graph->getVertices(); it.first != it.second; ++it.first) {
                 painter->setPen(QPen(QColor(0, 100, 240)));
                 painter->setBrush(QBrush(QColor(0, 100, 240)));
-                painter->drawRect(Cell::size*graph->vertexAt(*it.first).x()
-                                  , Cell::size*graph->vertexAt(*it.first).y(), Cell::size, Cell::size);
+                painter->drawRect(cellSize*graph->vertexAt(*it.first).x()
+                                  , cellSize*graph->vertexAt(*it.first).y()
+                                  , cellSize, cellSize);
             }
         }
     }
@@ -105,57 +63,16 @@ void GridItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
         while (true) {
             painter->setPen(QPen(QColor(220, 100, 100)));
             painter->setBrush(QBrush(QColor(220, 100, 100)));
-            int dx = graph->vertexAt(parent).x() - graph->vertexAt(current).x(), dy = graph->vertexAt(parent).y() - graph->vertexAt(current).y()
-               , dx1 = abs(dx), dy1 = abs(dy)
-               , px = 2*dy1-dx1, py = 2*dx1-dy1
-               , x, y, xe, ye;
-            if (dy1 <= dx1) {
-                if (dx >= 0) {
-                    x = graph->vertexAt(current).x();
-                    y = graph->vertexAt(current).y();
-                    xe = graph->vertexAt(parent).x();
-                } else {
-                    x = graph->vertexAt(parent).x();
-                    y = graph->vertexAt(parent).y();
-                    xe = graph->vertexAt(current).x();
-                }
-                for (int i = 0; x < xe; i++) {
-                    x++;
-                    if (px < 0) px += 2*dy1;
-                    else {
-                        if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) y++;
-                        else y--;
-                        px += 2*(dy1-dx1);
-                    }
-                    painter->drawRect(Cell::size*x
-                                      , Cell::size*y, Cell::size, Cell::size);
-                }
-            } else {
-                if (dy >= 0) {
-                    x = graph->vertexAt(current).x();
-                    y = graph->vertexAt(current).y();
-                    ye = graph->vertexAt(parent).y();
-                } else {
-                    x = graph->vertexAt(parent).x();
-                    y = graph->vertexAt(parent).y();
-                    ye = graph->vertexAt(current).y();
-                }
-                for (int i = 0; y < ye; i++) {
-                    y++;
-                    if (py <= 0) py += 2*dx1;
-                    else {
-                        if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) x++;
-                        else x--;
-                        py += 2*(dx1-dy1);
-                    }
-                    painter->drawRect(Cell::size*x
-                                      , Cell::size*y, Cell::size, Cell::size);
-                }
+            //std::vector<QVector2D> path = Util::bresenham(graph->vertexAt(current), graph->vertexAt(parent));
+            std::vector<State> path = Util::dubins(graph->vertexAt(parent), graph->vertexAt(current));
+            for (int i = 0; i < path.size(); i++) {
+                painter->drawRect(cellSize*path[i].x(), cellSize*path[i].y(), cellSize, cellSize);
             }
             painter->setPen(QPen(QColor(220, 0, 0)));
             painter->setBrush(QBrush(QColor(220, 0, 0)));
-            painter->drawRect(Cell::size*graph->vertexAt(current).x()
-                              , Cell::size*graph->vertexAt(current).y(), Cell::size, Cell::size);
+            painter->drawRect(cellSize*graph->vertexAt(current).x()
+                              , cellSize*graph->vertexAt(current).y()
+                              , cellSize, cellSize);
             current = graph->parent(current);
             if (parent == graph->getFirst()) {
                 break;
@@ -170,16 +87,16 @@ void GridItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
     if (!source.isNull()) {
         painter->setPen(QPen(QColor(220, 0, 0)));
         painter->setBrush(QBrush(QColor(220, 0, 0)));
-        painter->drawRect(Cell::size*round(source.x()/Cell::size)-Cell::size,
-                      Cell::size*round(source.y()/Cell::size)-Cell::size,
-                      Cell::size*2, Cell::size*2);        
+        painter->drawRect(cellSize*round(source.x()/cellSize)-cellSize,
+                      cellSize*round(source.y()/cellSize)-cellSize,
+                      cellSize*2, cellSize*2);
     }
     if (!target.isNull()) {
         painter->setPen(QPen(QColor(220, 0, 0)));
         painter->setBrush(QBrush(QColor(220, 0, 0)));
-        painter->drawRect(Cell::size*round(target.x()/Cell::size)-Cell::size*2,
-                      Cell::size*round(target.y()/Cell::size)-Cell::size*2,
-                      Cell::size*3, Cell::size*3);
+        painter->drawRect(cellSize*round(target.x()/cellSize)-cellSize*2,
+                      cellSize*round(target.y()/cellSize)-cellSize*2,
+                      cellSize*3, cellSize*3);
     }
 }
 
@@ -215,10 +132,10 @@ QPoint GridItem::getSource()
 
 bool GridItem::isSource(qreal x, qreal y)
 {
-    return (Cell::size*round(source.x()/Cell::size)-Cell::size <= Cell::size*round(x/Cell::size)
-            && Cell::size*round(source.x()/Cell::size) >= Cell::size*round(x/Cell::size)-Cell::size
-            && Cell::size*round(source.y()/Cell::size)-Cell::size <= Cell::size*round(y/Cell::size)
-            && Cell::size*round(source.y()/Cell::size) >= Cell::size*round(y/Cell::size)-Cell::size);
+    return (cellSize*round(source.x()/cellSize)-cellSize <= cellSize*round(x/cellSize)
+            && cellSize*round(source.x()/cellSize) >= cellSize*round(x/cellSize)-cellSize
+            && cellSize*round(source.y()/cellSize)-cellSize <= cellSize*round(y/cellSize)
+            && cellSize*round(source.y()/cellSize) >= cellSize*round(y/cellSize)-cellSize);
 }
 
 void GridItem::setTarget(qreal x, qreal y)
@@ -243,16 +160,16 @@ void GridItem::resetTarget()
 
 bool GridItem::isTarget(qreal x, qreal y)
 {
-    return (Cell::size*round(target.x()/Cell::size)-Cell::size <= Cell::size*round(x/Cell::size)
-            && Cell::size*round(target.x()/Cell::size) >= Cell::size*round(x/Cell::size)-Cell::size
-            && Cell::size*round(target.y()/Cell::size)-Cell::size <= Cell::size*round(y/Cell::size)
-            && Cell::size*round(target.y()/Cell::size) >= Cell::size*round(y/Cell::size)-Cell::size);
+    return (cellSize*round(target.x()/cellSize)-cellSize <= cellSize*round(x/cellSize)
+            && cellSize*round(target.x()/cellSize) >= cellSize*round(x/cellSize)-cellSize
+            && cellSize*round(target.y()/cellSize)-cellSize <= cellSize*round(y/cellSize)
+            && cellSize*round(target.y()/cellSize) >= cellSize*round(y/cellSize)-cellSize);
 }
 
 bool GridItem::isFree(qreal x, qreal y)
 {
-    if (x > width-Cell::size || y > height-Cell::size || x <= Cell::size+2 || y <= Cell::size+2) return false;
-    return cspace[round(x/Cell::size)][round(y/Cell::size)] <= 0;
+    if (x > width-cellSize || y > height-cellSize || x <= cellSize+2 || y <= cellSize+2) return false;
+    return cspace[round(x/cellSize)][round(y/cellSize)] <= 0;
 }
 
 void GridItem::setGraph(Graph *graph)
@@ -279,7 +196,22 @@ void GridItem::setCSpace(std::vector<std::vector<int> > cspace)
    this->cspace = cspace;
 }
 
+void GridItem::setPaths(std::vector<QVector2D> paths)
+{
+    this->paths = paths;
+}
+
 void GridItem::setDrawPath(bool drawPath)
 {
     this->drawPath = drawPath;
+}
+
+void GridItem::setCellSize(double cellSize)
+{
+    this->cellSize = cellSize;
+}
+
+double GridItem::getCellSize()
+{
+    return cellSize;
 }
