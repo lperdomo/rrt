@@ -54,14 +54,44 @@ QVector2D CSpace::obstacleAt(int i)
     return QVector2D(0, 0);
 }
 
-bool CSpace::isObstacle(int x, int y)
+bool CSpace::isObstacleAt(int x, int y)
 {
-    return (Cspace[x][y] == 2);
+    return (Cspace[x][y] == 3);
 }
 
-bool CSpace::isTarget(int x, int y)
+bool CSpace::isTargetAt(int x, int y)
 {
-    return (Cspace[x][y] == -1);
+    return (Cspace[x][y] == 1);
+}
+
+bool CSpace::isVertexAt(int x, int y)
+{
+    return (Cspace[x][y] == -2);
+}
+
+bool CSpace::isResultVertexAt(int x, int y)
+{
+    return (Cspace[x][y] == -4);
+}
+
+void CSpace::setPathAt(int x, int y)
+{
+    Cspace[x][y] = -1;
+}
+
+void CSpace::setVertexAt(int x, int y)
+{
+    Cspace[x][y] = -2;
+}
+
+void CSpace::setResultPathAt(int x, int y)
+{
+    Cspace[x][y] = -3;
+}
+
+void CSpace::setResultVertexAt(int x, int y)
+{
+    Cspace[x][y] = -4;
 }
 
 std::vector<std::vector<int> > CSpace::getCSpace()
@@ -86,13 +116,13 @@ void CSpace::generateCSpace()
 void CSpace::generateCobstacle()
 {
     for (int x = 0; x <= width; x++) {
-        Cspace[x][0] = 2;
-        Cspace[x][height] = 2;
+        Cspace[x][0] = 3;
+        Cspace[x][height] = 3;
     }
 
     for (int y = 0; y <= height; y++) {
-        Cspace[0][y] = 2;
-        Cspace[width][y] = 2;
+        Cspace[0][y] = 3;
+        Cspace[width][y] = 3;
     }
 
     srand(time(0));
@@ -103,7 +133,7 @@ void CSpace::generateCobstacle()
         limity = (obstacle.y()+limity < height ? obstacle.y()+limity : height);
         for (int i = obstacle.x(); i < limitx; i++) {
             for (int j = obstacle.y(); j < limity; j++) {
-                Cspace[i][j] = 2;
+                Cspace[i][j] = 3;
             }
         }
     }
@@ -112,7 +142,7 @@ void CSpace::generateCobstacle()
     Cobstacle->clear();
     for (int x = 0; x <= width; x++) {
         for (int y = 0; y <= height; y++) {
-            if (Cspace[x][y] <= 0) Cfree->push_back(QVector2D(x, y));
+            if (Cspace[x][y] <= 1) Cfree->push_back(QVector2D(x, y));
             else Cobstacle->push_back(QVector2D(x, y));
         }
     }
@@ -135,7 +165,23 @@ void CSpace::markTarget(int x, int y)
 {
     for (int i = x-3; i < x+2; i++) {
         for (int j = y-3; j < y+2; j++) {
-            Cspace[i][j] = -1;
+            if (!((i == x-3 && j == y-3)
+               || (i == x-3 && j == y+1)
+               || (i == x+1 && j == y-3)
+               || (i == x+1 && j == y+1))) {
+                Cspace[i][j] = 1;
+            }
+        }
+    }
+}
+
+void CSpace::clearCSpace()
+{
+    for (int i = 0; i <= width; i++) {
+        for (int j = 0; j <= height; j++) {
+            if (Cspace[i][j] < 0) {
+                Cspace[i][j] = 0;
+            }
         }
     }
 }

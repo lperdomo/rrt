@@ -33,17 +33,19 @@ MainWindow::MainWindow(QWidget *parent) :
     labelStep->setText("Step:");
     ui->mainToolBar->addWidget(labelStep);
 
-    lineStep = new QLineEdit(this);
-    lineStep->setFixedWidth(60);
-    ui->mainToolBar->addWidget(lineStep);
+    spinStep = new QSpinBox(this);
+    spinStep->setFixedWidth(60);
+    spinStep->setRange(1, 100);
+    ui->mainToolBar->addWidget(spinStep);
 
     QLabel *labelBias = new QLabel(this);
     labelBias->setText("Bias:");
     ui->mainToolBar->addWidget(labelBias);
 
-    lineBias = new QLineEdit(this);
-    lineBias->setFixedWidth(60);
-    ui->mainToolBar->addWidget(lineBias);
+    spinBias = new QSpinBox(this);
+    spinBias->setFixedWidth(60);
+    spinBias->setRange(0, 100);
+    ui->mainToolBar->addWidget(spinBias);
 
     ui->mainToolBar->addSeparator();
 
@@ -51,9 +53,10 @@ MainWindow::MainWindow(QWidget *parent) :
     labelObstacles->setText("Obstacles:");
     ui->mainToolBar->addWidget(labelObstacles);
 
-    lineObstacles = new QLineEdit(this);
-    lineObstacles->setFixedWidth(60);
-    ui->mainToolBar->addWidget(lineObstacles);
+    spinObstacles = new QSpinBox(this);
+    spinObstacles->setFixedWidth(60);
+    spinObstacles->setRange(0, 100);
+    ui->mainToolBar->addWidget(spinObstacles);
 
     buttonObs = new QToolButton(this);
     buttonObs->setText("Generate");
@@ -87,19 +90,19 @@ QLineEdit *MainWindow::getLineK()
     return lineK;
 }
 
-QLineEdit *MainWindow::getLineStep()
+QSpinBox *MainWindow::getSpinStep()
 {
-    return lineStep;
+    return spinStep;
 }
 
-QLineEdit *MainWindow::getLineBias()
+QSpinBox *MainWindow::getSpinBias()
 {
-    return lineBias;
+    return spinBias;
 }
 
-QLineEdit *MainWindow::getLineObstacles()
+QSpinBox *MainWindow::getSpinObstacles()
 {
-    return lineObstacles;
+    return spinObstacles;
 }
 
 QComboBox *MainWindow::getComboMode()

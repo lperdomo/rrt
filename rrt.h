@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QVector2D>
+#include <QMutex>
 #include <vector>
 
 #include "util.h"
@@ -17,7 +18,9 @@ public:
     Rrt();
     ~Rrt();
     void setCSpace(CSpace *cspace);
+    CSpace *getCSpace();
     void setXInit(QVector2D XInit);
+    QVector2D getXInit();
     void setXEnd(QVector2D XEnd);
     QVector2D getXEnd();
     void setK(int K);
@@ -29,27 +32,23 @@ public:
     void setMode(int mode);
     int getMode();
     bool isFound();
-    Graph *getT();
-    std::vector<QVector2D> getPaths();
 private:
     int K;
     int step;
     int bias;
-    CSpace *cspace;
-    Graph *T;
     State XInit;
     State XEnd;
     State XRand;
     State XNear;
     bool found;
     int mode;
-    std::vector<QVector2D> paths;
+    CSpace *cspace;
+    Graph *T;
     void randomState();
     Graph::Vertex nearestNeighbour();
-    State newState(StateInput u);
-    StateInput selectInput();
+    State newState();
     bool validTransition(State p1, State p2);
-
+    void buildResult();
 signals:
     void iteration();
     void ended();

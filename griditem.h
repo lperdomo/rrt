@@ -7,12 +7,15 @@
 #include "graph.h"
 #include "util.h"
 
-class GridItem : public QGraphicsItem
+class GridItem : public QObject, public QGraphicsItem
 {
+    Q_OBJECT
 public:
     GridItem(qreal width, qreal height, int cellSize);
     ~GridItem();
     QRectF boundingRect() const;
+    void setCellSize(double cellSize);
+    double getCellSize();
     void setSource(qreal x, qreal y);
     QPoint getSource();
     void resetSource();
@@ -21,15 +24,9 @@ public:
     QPoint getTarget();
     void resetTarget();
     bool isTarget(qreal x, qreal y);
-    void setGraph(Graph *graph);
-    void resetGraph();
     void setCSpace(std::vector<std::vector<int> > cspace);
-    void setPaths(std::vector<QVector2D> paths);
     bool isFree(qreal x, qreal y);
     void setFoundTarget(bool foundTarget);
-    void setDrawPath(bool drawPath);
-    void setCellSize(double cellSize);
-    double getCellSize();
     void zoomIn();
     void zoomOut();
     double scale;
@@ -42,11 +39,11 @@ private:
     QPoint source;
     QPoint target;
     bool foundTarget;
-    Graph *graph;
     std::vector<std::vector<int> > cspace;
-    std::vector<QVector2D> paths;
     bool drawPath;
     double cellSize;
+signals:
+    void setSomething(int, int);
 };
 
 #endif // GRIDITEM_H

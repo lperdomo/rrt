@@ -47,19 +47,7 @@ void Scene::keyReleaseEvent(QKeyEvent *event)
 
 void Scene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (gridItem->isTarget(event->scenePos().x(), event->scenePos().y())) {
-        gridItem->resetTarget();
-        this->update();
-    } else if (gridItem->isSource(event->scenePos().x(), event->scenePos().y())) {
-        gridItem->resetSource();
-        this->update();
-    } else if (gridItem->getSource().isNull()) {
-        gridItem->setSource(event->scenePos().x(), event->scenePos().y());
-        this->update();
-    } else if (gridItem->getTarget().isNull()) {
-        gridItem->setTarget(event->scenePos().x(), event->scenePos().y());
-        this->update();
-    }
+    gridItem->setSomething(event->scenePos().x(), event->scenePos().y());
 }
 
 GridItem *Scene::getGridItem()

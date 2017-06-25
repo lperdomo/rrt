@@ -5,6 +5,7 @@
 #include <QToolButton>
 #include <QLabel>
 #include <QLineEdit>
+#include <QSpinBox>
 #include <QShortcut>
 #include <QKeySequence>
 #include <QComboBox>
@@ -23,9 +24,9 @@ public:
     QToolButton *getButtonRun();
     QToolButton *getButtonObs();
     QLineEdit *getLineK();
-    QLineEdit *getLineStep();
-    QLineEdit *getLineBias();
-    QLineEdit *getLineObstacles();
+    QSpinBox *getSpinStep();
+    QSpinBox *getSpinBias();
+    QSpinBox *getSpinObstacles();
     QComboBox *getComboMode();
     void searchMessage(bool success);
     void resetMessage();
@@ -34,9 +35,9 @@ private:
     QToolButton *buttonRun;
     QToolButton *buttonObs;
     QLineEdit *lineK;
-    QLineEdit *lineStep;
-    QLineEdit *lineBias;
-    QLineEdit *lineObstacles;
+    QSpinBox *spinStep;
+    QSpinBox *spinBias;
+    QSpinBox *spinObstacles;
     QComboBox *comboMode;
     QLabel *labelSearch;
 };

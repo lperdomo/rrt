@@ -21,10 +21,17 @@ public:
     QVector2D freeAt(int i);
     QVector2D obstacleAt(int i);
     void generateCSpace();
-    bool isObstacle(int x, int y);
-    bool isTarget(int x, int y);
+    void clearCSpace();
+    bool isObstacleAt(int x, int y);
+    bool isTargetAt(int x, int y);
+    bool isVertexAt(int x, int y);
+    bool isResultVertexAt(int x, int y);
     void markTarget(int x, int y);
     void dismarkTarget(int x, int y);
+    void setPathAt(int x, int y);
+    void setVertexAt(int x, int y);
+    void setResultPathAt(int x, int y);
+    void setResultVertexAt(int x, int y);
 private:
     int width;
     int height;

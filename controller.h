@@ -33,6 +33,7 @@ public slots:
     void doPathPlanning();
     void showResult();
     void stopThread();
+    void setSomething(int x, int y);
 };
 
 #endif // CONTROLLER_H

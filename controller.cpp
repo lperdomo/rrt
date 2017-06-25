@@ -15,12 +15,13 @@ Controller::Controller() :
     view = new View(scene);
     window.setFixedSize(750+15, 500+65);
     window.getLineK()->setText(QString::number(rrt->getK()));
-    window.getLineStep()->setText(QString::number(rrt->getStep()));
-    window.getLineBias()->setText(QString::number(rrt->getBias()));
-    window.getLineObstacles()->setText(QString::number(cspace->getObstacles()));
+    window.getSpinStep()->setValue(rrt->getStep());
+    window.getSpinBias()->setValue(rrt->getBias());
+    window.getSpinObstacles()->setValue(cspace->getObstacles());
     window.getComboMode()->setCurrentIndex(rrt->getMode());
     this->connect(window.getButtonRun(), SIGNAL(clicked(bool)), this, SLOT(doPathPlanning()));
     this->connect(window.getButtonObs(), SIGNAL(clicked(bool)), this, SLOT(doWorldGeneration()));
+    this->connect(scene->getGridItem(), SIGNAL(setSomething(int,int)), this, SLOT(setSomething(int, int)));
 }
 
 Controller::~Controller()
@@ -40,10 +41,8 @@ void Controller::run()
 void Controller::doWorldGeneration()
 {
     window.resetMessage();
-    cspace->setObstacles(window.getLineObstacles()->text().toInt());
+    cspace->setObstacles(window.getSpinObstacles()->value());
     cspace->generateCSpace();
-    scene->getGridItem()->setDrawPath(false);
-    scene->getGridItem()->resetGraph();
     scene->getGridItem()->resetSource();
     scene->getGridItem()->resetTarget();
     scene->getGridItem()->setCSpace(cspace->getCSpace());
@@ -56,13 +55,14 @@ void Controller::doPathPlanning()
     if (thread->isRunning()) {
         rrt->setK(1);
      } else {
+        cspace->clearCSpace();
         window.getButtonRun()->setText("Stop");
         window.getButtonObs()->setEnabled(false);
-        scene->getGridItem()->setDrawPath(false);
+        scene->getGridItem()->setFoundTarget(false);
 
         rrt->setK(window.getLineK()->text().toInt());
-        rrt->setStep(window.getLineStep()->text().toInt());
-        rrt->setBias(window.getLineBias()->text().toInt());
+        rrt->setStep(window.getSpinStep()->value());
+        rrt->setBias(window.getSpinBias()->value());
         rrt->setMode(window.getComboMode()->currentIndex());
         rrt->setXInit(QVector2D(round(scene->getGridItem()->getSource().x()/scene->getGridItem()->getCellSize())
                     , round(scene->getGridItem()->getSource().y()/scene->getGridItem()->getCellSize())));
@@ -80,21 +80,20 @@ void Controller::doPathPlanning()
 
 void Controller::showResult()
 {
-    if (!scene->getGridItem()->getTarget().isNull()) {
-        scene->getGridItem()->setFoundTarget(rrt->isFound());
-        window.searchMessage(rrt->isFound());
-    }
-    scene->getGridItem()->setGraph(rrt->getT());
-    scene->getGridItem()->setPaths(rrt->getPaths());
+    scene->getGridItem()->setCSpace(rrt->getCSpace()->getCSpace());
     scene->getGridItem()->update();
 }
 
 void Controller::stopThread()
 {
     thread->exit();
+    scene->getGridItem()->setCSpace(rrt->getCSpace()->getCSpace());
+    if (!scene->getGridItem()->getTarget().isNull()) {
+        scene->getGridItem()->setFoundTarget(rrt->isFound());
+        window.searchMessage(rrt->isFound());
+    }
     window.getButtonRun()->setText("Run");
     window.getButtonObs()->setEnabled(true);
-    scene->getGridItem()->setDrawPath(true);
     scene->getGridItem()->update();
 }
 
@@ -108,3 +107,21 @@ void Controller::showView()
     }
 }
 
+void Controller::setSomething(int x, int y)
+{
+    if (scene->getGridItem()->getSource().isNull()
+        && scene->getGridItem()->isFree(x, y)) {
+        scene->getGridItem()->setSource(x, y);
+        scene->getGridItem()->update();
+    } else if (scene->getGridItem()->isSource(x, y)) {
+        scene->getGridItem()->resetSource();
+        scene->getGridItem()->update();
+    } else if (scene->getGridItem()->getTarget().isNull()
+               && scene->getGridItem()->isFree(x, y)) {
+        scene->getGridItem()->setTarget(x, y);
+        scene->getGridItem()->update();
+    } else if (scene->getGridItem()->isTarget(x, y)) {
+        scene->getGridItem()->resetTarget();
+        scene->getGridItem()->update();
+    }
+}

@@ -10,7 +10,6 @@ GridItem::GridItem(qreal width, qreal height, int cellSize) :
     this->cellSize = cellSize;
     scale = 1;
     foundTarget = false;
-    graph = NULL;
 }
 
 GridItem::~GridItem()
@@ -29,57 +28,28 @@ void GridItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
     if (cspace.size() > 0) {
         for (int x = 0; x < cspace.size(); x++) {
             for (int y = 0; y < cspace[x].size(); y++) {
-                if (cspace[x][y] == 2) {
+                if (cspace[x][y] == 3) {
                     painter->setPen(QPen(QColor(0, 0, 0)));
                     painter->setBrush(QBrush(QColor(0, 0, 0)));
                     painter->drawRect(cellSize*x, cellSize*y, cellSize, cellSize);
-                }
-            }
-        }
-    }
+                } else if (cspace[x][y] == -1) {
+                    painter->setPen(QPen(QColor(0, 200, 240)));
+                    painter->setBrush(QBrush(QColor(0, 200, 240)));
+                    painter->drawRect(cellSize*x, cellSize*y, cellSize, cellSize);
+                } else if (cspace[x][y] == -2) {
+                    painter->setPen(QPen(QColor(0, 100, 240)));
+                    painter->setBrush(QBrush(QColor(0, 100, 240)));
+                    painter->drawRect(cellSize*x, cellSize*y, cellSize, cellSize);
+                } else if (cspace[x][y] == -3) {
+                    painter->setPen(QPen(QColor(220, 100, 100)));
+                    painter->setBrush(QBrush(QColor(220, 100, 100)));
+                    painter->drawRect(cellSize*x, cellSize*y, cellSize, cellSize);
+                } else if (cspace[x][y] == -4) {
+                    painter->setPen(QPen(QColor(220, 0, 0)));
+                    painter->setBrush(QBrush(QColor(220, 0, 0)));
+                    painter->drawRect(cellSize*x, cellSize*y, cellSize, cellSize);
 
-    if (graph) {
-        if (graph->size() > 0) {
-            for (std::pair<Graph::EdgeIterator, Graph::EdgeIterator> it = graph->getEdges(); it.first != it.second; ++it.first) {
-                painter->setPen(QPen(QColor(0, 200, 240)));
-                painter->setBrush(QBrush(QColor(0, 200, 240)));
-                for (int i = 0; i < paths.size(); i++) {
-                    painter->drawRect(cellSize*paths[i].x(), cellSize*paths[i].y(), cellSize, cellSize);
                 }
-            }
-            for (std::pair<Graph::VertexIterator, Graph::VertexIterator> it = graph->getVertices(); it.first != it.second; ++it.first) {
-                painter->setPen(QPen(QColor(0, 100, 240)));
-                painter->setBrush(QBrush(QColor(0, 100, 240)));
-                painter->drawRect(cellSize*graph->vertexAt(*it.first).x()
-                                  , cellSize*graph->vertexAt(*it.first).y()
-                                  , cellSize, cellSize);
-            }
-        }
-    }
-
-    if (drawPath && foundTarget) {
-        Graph::Vertex current = graph->getLast();
-        Graph::Vertex parent = graph->parent(current);;
-        while (true) {
-            painter->setPen(QPen(QColor(220, 100, 100)));
-            painter->setBrush(QBrush(QColor(220, 100, 100)));
-            //std::vector<QVector2D> path = Util::bresenham(graph->vertexAt(current), graph->vertexAt(parent));
-            std::vector<State> path = Util::dubins(graph->vertexAt(parent), graph->vertexAt(current));
-            for (int i = 0; i < path.size(); i++) {
-                painter->drawRect(cellSize*path[i].x(), cellSize*path[i].y(), cellSize, cellSize);
-            }
-            painter->setPen(QPen(QColor(220, 0, 0)));
-            painter->setBrush(QBrush(QColor(220, 0, 0)));
-            painter->drawRect(cellSize*graph->vertexAt(current).x()
-                              , cellSize*graph->vertexAt(current).y()
-                              , cellSize, cellSize);
-            current = graph->parent(current);
-            if (parent == graph->getFirst()) {
-                break;
-            } else if (current == graph->parent(current)) {
-                parent = graph->getFirst();
-            } else {
-                parent = graph->parent(current);
             }
         }
     }
@@ -100,27 +70,24 @@ void GridItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
     }
 }
 
-void GridItem::zoomIn()
+void GridItem::setCellSize(double cellSize)
 {
-    scale += 0.1;
+    this->cellSize = cellSize;
 }
 
-void GridItem::zoomOut()
+double GridItem::getCellSize()
 {
-    scale -= 0.1;
+    return cellSize;
 }
 
 void GridItem::setSource(qreal x, qreal y)
 {
-    if (this->isFree(x, y)) {
-        source.setX(x);
-        source.setY(y);
-    }
+    source.setX(x);
+    source.setY(y);
 }
 
 void GridItem::resetSource()
 {
-    this->resetGraph();
     source.setX(0);
     source.setY(0);
 }
@@ -140,10 +107,8 @@ bool GridItem::isSource(qreal x, qreal y)
 
 void GridItem::setTarget(qreal x, qreal y)
 {
-    if (this->isFree(x, y)) {
-        target.setX(x);
-        target.setY(y);
-    }
+    target.setX(x);
+    target.setY(y);
 }
 
 QPoint GridItem::getTarget()
@@ -153,7 +118,6 @@ QPoint GridItem::getTarget()
 
 void GridItem::resetTarget()
 {
-    this->resetGraph();
     target.setX(0);
     target.setY(0);
 }
@@ -169,21 +133,13 @@ bool GridItem::isTarget(qreal x, qreal y)
 bool GridItem::isFree(qreal x, qreal y)
 {
     if (x > width-cellSize || y > height-cellSize || x <= cellSize+2 || y <= cellSize+2) return false;
-    return cspace[round(x/cellSize)][round(y/cellSize)] <= 0;
-}
-
-void GridItem::setGraph(Graph *graph)
-{
-    this->graph = graph;
-}
-
-void GridItem::resetGraph()
-{
-    foundTarget = false;
-    drawPath = false;
-    if (graph) {
-        this->graph->clear();
+    int xa = round(x/cellSize), ya = round(y/cellSize);
+    for (int i = xa-2; i <= xa+1; i++) {
+        for (int j = ya-2; j <= ya+1; j++) {
+            if (cspace[i][j] >= 2) return false;
+        }
     }
+    return true;
 }
 
 void GridItem::setFoundTarget(bool foundTarget)
@@ -196,22 +152,12 @@ void GridItem::setCSpace(std::vector<std::vector<int> > cspace)
    this->cspace = cspace;
 }
 
-void GridItem::setPaths(std::vector<QVector2D> paths)
+void GridItem::zoomIn()
 {
-    this->paths = paths;
+    scale += 0.1;
 }
 
-void GridItem::setDrawPath(bool drawPath)
+void GridItem::zoomOut()
 {
-    this->drawPath = drawPath;
-}
-
-void GridItem::setCellSize(double cellSize)
-{
-    this->cellSize = cellSize;
-}
-
-double GridItem::getCellSize()
-{
-    return cellSize;
+    scale -= 0.1;
 }

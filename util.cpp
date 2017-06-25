@@ -65,11 +65,12 @@ std::vector<QVector2D> Util::bresenham(QVector2D p1, QVector2D p2)
     return r;
 }
 
-std::vector<State> Util::dubins(State qn, State qr, double step)
+std::vector<QVector2D> Util::dubins(State qn, State qr, double step)
 {
-    std::vector<State> r;
-    std::vector<State> e;
-    double dubinsR = 0.5;
+    std::vector<State> rs;
+    std::vector<QVector2D> r;
+    std::vector<QVector2D> e;
+    double dubinsR = 0.1;
     State centerA, centerB;
     double phi = 0.2;
 
@@ -157,7 +158,9 @@ std::vector<State> Util::dubins(State qn, State qr, double step)
     //push the first point into the vector
     State new_point(round(qn.x()),round(qn.y()),qn.th());
 
-    r.push_back(new_point);
+    rs.push_back(new_point);
+    r.push_back(QVector2D(new_point.x(), new_point.y()));
+
     //-------------------------this is the begin of moving--------------------------//
     if(floor(centerA.th()*1000) == floor(centerB.th()*1000)){
 
@@ -178,22 +181,24 @@ std::vector<State> Util::dubins(State qn, State qr, double step)
         while(true){
             //cout<<"tempAthetaC1: "<<tempAthetaC1<<" angleLeave: "<<angleLeave<<" phi: "<<phi<<endl;
             if( tempAthetaC1 + phi > angleLeave){
-                State tmpp = Util::dubinsTurn(r.back(), (angleLeave-tempAthetaC1)*centerA.th(), centerA);// turn A to angle angleCenters arond centerA, last move, ready to leave
+                State tmpp = Util::dubinsTurn(rs.back(), (angleLeave-tempAthetaC1)*centerA.th(), centerA);// turn A to angle angleCenters arond centerA, last move, ready to leave
                 if (tmpp.isNull()) {// collision happen, stop curve and return dubins()
                 //cout<<"obstacle, and NULL"<<endl;
                     return e;
                 }
                 //tmpp->coutPoint();
-                r.push_back(tmpp);
+                rs.push_back(tmpp);
+                r.push_back(QVector2D(tmpp.x(), tmpp.y()));
                 break;
             }
-            State tmpp = Util::dubinsTurn(r.back(), phi*centerA.th(), centerA);// turn A phi angle around centerA
+            State tmpp = Util::dubinsTurn(rs.back(), phi*centerA.th(), centerA);// turn A phi angle around centerA
             if (tmpp.isNull()) {// collision happen, stop curve and return dubins()
                 //cout<<"obstacle, and NULL"<<endl;
                 return e;
             }
             //tmpp->coutPoint();
-            r.push_back(tmpp);
+            rs.push_back(tmpp);
+            r.push_back(QVector2D(tmpp.x(), tmpp.y()));
             // update tempAthetaC1
             tempAthetaC1 = tempAthetaC1+phi;
         }
@@ -206,23 +211,25 @@ std::vector<State> Util::dubins(State qn, State qr, double step)
         while(true){
             // move Point A one stepSizeStreight forward
             if(currentDist+step > distCenters){
-                std::vector<State> tmpp = Util::dubinsFoward(r.back(), distCenters-currentDist); // last move
+                std::vector<State> tmpp = Util::dubinsFoward(rs.back(), distCenters-currentDist); // last move
                 if (tmpp.size() == 0) {// collision happen, stop curve and return dubins()
     //                    cout<<"obstacle, and NULL"<<endl;
                     return e;
                 }
                 for (int i = 0; i < tmpp.size(); i++) {
-                    r.push_back(tmpp[i]);
+                    rs.push_back(tmpp[i]);
+                    r.push_back(QVector2D(tmpp[i].x(), tmpp[i].y()));
                 }
                 break;
             }
-            std::vector<State> tmpp = Util::dubinsFoward(r.back(), step);// normal move
+            std::vector<State> tmpp = Util::dubinsFoward(rs.back(), step);// normal move
             if (tmpp.size() == 0) {// collision happen, stop curve and return dubins()
 //                    cout<<"obstacle, and NULL"<<endl;
                 return e;
             }
             for (int i = 0; i < tmpp.size(); i++) {
-                r.push_back(tmpp[i]);
+                rs.push_back(tmpp[i]);
+                r.push_back(QVector2D(tmpp[i].x(), tmpp[i].y()));
             }
             //update currentDist
             currentDist +=step;
@@ -233,29 +240,31 @@ std::vector<State> Util::dubins(State qn, State qr, double step)
         //keep turning until (A.theta == B.theta), then path done, reach destination
         //make sure A.theta will wrap up at 0-2PI range.
         // angle step size is phi*directionOfCircle
-        double tempAthetaC2 = r.back().th()*centerB.th();
+        double tempAthetaC2 = rs.back().th()*centerB.th();
         double angleDone = qr.th()*centerB.th();
         if(tempAthetaC2 > angleDone){//handle case: tempAthetaC2 > angleDone
             angleDone += 2*M_PI;
         }
         while(true){
             if( tempAthetaC2 + phi > angleDone){
-                State tmpp = Util::dubinsTurn(r.back(), (angleDone-tempAthetaC2)*centerB.th(), centerB);// turn A to angle angleCenters around centerB, last move, path done
+                State tmpp = Util::dubinsTurn(rs.back(), (angleDone-tempAthetaC2)*centerB.th(), centerB);// turn A to angle angleCenters around centerB, last move, path done
                 if (tmpp.isNull()) {// collision happen, stop curve and return dubins()
                     //cout<<"obstacle, and NULL"<<endl;
                     return e;
                 }
                 //                    tmpp->coutPoint();
-                r.push_back(tmpp);
+                rs.push_back(tmpp);
+                r.push_back(QVector2D(tmpp.x(), tmpp.y()));
                 break;
             }
-            State tmpp = Util::dubinsTurn(r.back(), phi*centerB.th(),centerB);// turn A phi angle around centerB
+            State tmpp = Util::dubinsTurn(rs.back(), phi*centerB.th(),centerB);// turn A phi angle around centerB
             if (tmpp.isNull()) {// collision happen, stop curve and return dubins()
 //                    cout<<"obstacle, and NULL"<<endl;
                 return e;
             }
             // update tempAthetaC2
-            r.push_back(tmpp);
+            rs.push_back(tmpp);
+            r.push_back(QVector2D(tmpp.x(), tmpp.y()));
             //                tmpp->coutPoint();
             tempAthetaC2 = tempAthetaC2+phi;
         }
@@ -275,22 +284,24 @@ std::vector<State> Util::dubins(State qn, State qr, double step)
         }
         while(true){
             if( tempAthetaC1 + phi > angleLeave){
-                State tmpp=Util::dubinsTurn(r.back(), (angleLeave-tempAthetaC1)*centerA.th(), centerA);// turn A to angle angleCenters around centerA, last move, ready to leave
+                State tmpp=Util::dubinsTurn(rs.back(), (angleLeave-tempAthetaC1)*centerA.th(), centerA);// turn A to angle angleCenters around centerA, last move, ready to leave
                 if (tmpp.isNull()) {// collision happen, stop curve and return dubins()
 //                        cout<<"obstacle, and NULL"<<endl;
                     return e;
                 }
-                r.push_back(tmpp);
+                rs.push_back(tmpp);
+                r.push_back(QVector2D(tmpp.x(), tmpp.y()));
                 //                    tmpp->coutPoint();
                 break;
             }
-            State tmpp =Util::dubinsTurn(r.back(), phi*centerA.th(), centerA);// turn phi angle around centerA
+            State tmpp =Util::dubinsTurn(rs.back(), phi*centerA.th(), centerA);// turn phi angle around centerA
             if (tmpp.isNull()) {// collision happen, stop curve and return dubins()
 //                    cout<<"obstacle, and NULL"<<endl;
                 return e;
             }
             // update tempAthetaC1
-            r.push_back(tmpp);
+            rs.push_back(tmpp);
+            r.push_back(QVector2D(tmpp.x(), tmpp.y()));
             //                tmpp->coutPoint();
             tempAthetaC1 = tempAthetaC1+phi;
         }
@@ -302,23 +313,25 @@ std::vector<State> Util::dubins(State qn, State qr, double step)
         while(true){
             // move Point A one stepSizeStreight forward
             if(currentDist+step > distTangentLine){
-                std::vector<State> tmpp=Util::dubinsFoward(r.back(), distTangentLine-currentDist); // last move
+                std::vector<State> tmpp=Util::dubinsFoward(rs.back(), distTangentLine-currentDist); // last move
                 if (tmpp.size() == 0) {// collision happen, stop curve and return dubins()
     //                    cout<<"obstacle, and NULL"<<endl;
                     return e;
                 }
                 for (int i = 0; i < tmpp.size(); i++) {
-                    r.push_back(tmpp[i]);
+                    rs.push_back(tmpp[i]);
+                    r.push_back(QVector2D(tmpp[i].x(), tmpp[i].y()));
                 }
                 break;
             }
-            std::vector<State> tmpp=Util::dubinsFoward(r.back(), step);// normal move
+            std::vector<State> tmpp=Util::dubinsFoward(rs.back(), step);// normal move
             if (tmpp.size() == 0) {// collision happen, stop curve and return dubins()
 //                    cout<<"obstacle, and NULL"<<endl;
                 return e;
             }
             for (int i = 0; i < tmpp.size(); i++) {
-                r.push_back(tmpp[i]);
+                rs.push_back(tmpp[i]);
+                r.push_back(QVector2D(tmpp[i].x(), tmpp[i].y()));
             }
             currentDist += step;
         }
@@ -327,35 +340,40 @@ std::vector<State> Util::dubins(State qn, State qr, double step)
         //keep turning until (A.theta == B.theta), then path done, reach destination
         //make sure A.theta will wrap up at 0-2PI range.
         // angle step size is phi*directionOfCircle
-        double tempAthetaC2 = r.back().th()*centerB.th();
+        double tempAthetaC2 = rs.back().th()*centerB.th();
         double angleDone = qr.th()*centerB.th();
         if(tempAthetaC2 > angleDone){//handle case: tempAthetaC2 > angleDone
             angleDone += 2*M_PI;
         }
         while(true){
             if( tempAthetaC2 + phi > angleDone){
-                State tmpp=Util::dubinsTurn(r.back(), (angleDone-tempAthetaC2)*centerB.th(), centerB);// turn A to angle angleCenters around centerB, last move, path done
+                State tmpp=Util::dubinsTurn(rs.back(), (angleDone-tempAthetaC2)*centerB.th(), centerB);// turn A to angle angleCenters around centerB, last move, path done
                 if (tmpp.isNull()) {// collision happen, stop curve and return dubins()
 //                        cout<<"obstacle, and NULL"<<endl;
                     return e;
                 }
                 //                    tmpp->coutPoint();
-                r.push_back(tmpp);
+                rs.push_back(tmpp);
+                r.push_back(QVector2D(tmpp.x(), tmpp.y()));
                 break;
             }
-            State tmpp=Util::dubinsTurn(r.back(), phi*centerB.th(), centerB);// turn A phi angle around centerB
+            State tmpp=Util::dubinsTurn(rs.back(), phi*centerB.th(), centerB);// turn A phi angle around centerB
             if (tmpp.isNull()) {// collision happen, stop curve and return dubins()
 //                    cout<<"obstacle, and NULL"<<endl;
                 return e;
             }
             // update tempAthetaC2
             //                tmpp->coutPoint();
-            r.push_back(tmpp);
+            rs.push_back(tmpp);
+            r.push_back(QVector2D(tmpp.x(), tmpp.y()));
             tempAthetaC2 = tempAthetaC2+phi;
         }
     }//end of dubins curve for diff circle direction case
-    return r;
 
+    rs.push_back(qr);
+    r.push_back(QVector2D(qr.x(), qr.y()));
+
+    return r;
 }
 
 State Util::dubinsTurn(State p1, double deltaAngle, State center)
@@ -396,19 +414,4 @@ std::vector<State> Util::dubinsFoward(State A, double distance)
     }
 
     return r;
-}
-
-
-
-double Util::distanceStates(State p1, State p2)
-{
-    double delta, deltaTh;
-    deltaTh = p1.th()-p2.th();
-    if (deltaTh > M_PI) deltaTh -= 2*M_PI;
-    else if (deltaTh < -M_PI) deltaTh += 2*M_PI;
-
-    delta = (p1.x()-p2.x())*(p1.x()-p2.x())+(p1.y()-p2.y())*(p1.y()-p2.y()) + 1*pow(deltaTh, 2);
-    delta = pow(delta, 0.5);
-
-    return delta;
 }
