@@ -191,7 +191,7 @@ void Rrt::buildResult()
     while (true) {
         transition.clear();
         if (mode == 0) transition = Util::bresenham(T->vertexAt(current), T->vertexAt(parent));
-        else if (mode == 1) transition = Util::dubins(T->vertexAt(current), T->vertexAt(parent), step);
+        else if (mode == 1) transition = Util::dubins(T->vertexAt(parent), T->vertexAt(current), step);
 
         cspace->setResultVertexAt(T->vertexAt(current).x(), T->vertexAt(current).y());
         result.push_back(T->vertexAt(current));
