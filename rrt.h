@@ -32,6 +32,7 @@ public:
     void setMode(int mode);
     int getMode();
     bool isFound();
+    std::vector<QVector2D> getResult();
 private:
     int K;
     int step;
@@ -49,6 +50,7 @@ private:
     State newState();
     bool validTransition(State p1, State p2);
     void buildResult();
+    std::vector<QVector2D> result;
 signals:
     void iteration();
     void ended();

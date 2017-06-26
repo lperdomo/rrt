@@ -191,16 +191,20 @@ void Rrt::buildResult()
     while (true) {
         transition.clear();
         if (mode == 0) transition = Util::bresenham(T->vertexAt(current), T->vertexAt(parent));
-        else if (mode == 1) transition = Util::dubins(T->vertexAt(parent), T->vertexAt(current), step);
+        else if (mode == 1) transition = Util::dubins(T->vertexAt(current), T->vertexAt(parent), step);
 
+        cspace->setResultVertexAt(T->vertexAt(current).x(), T->vertexAt(current).y());
+        result.push_back(T->vertexAt(current));
         for (int i = 0; i < transition.size(); i++) {
             if (!cspace->isObstacleAt(transition[i].x(), transition[i].y())) {
                 if (!cspace->isResultVertexAt(transition[i].x(), transition[i].y())) {
                     cspace->setResultPathAt(transition[i].x(), transition[i].y());
+                    result.push_back(transition[i]);
                 }
+            } else {
+                //std::cout << "arredondamentos..." << std::endl;
             }
         }
-        cspace->setResultVertexAt(T->vertexAt(current).x(), T->vertexAt(current).y());
         current = T->parent(current);
         if (parent == T->getFirst()) {
             break;
@@ -210,4 +214,9 @@ void Rrt::buildResult()
             parent = T->parent(current);
         }
     }
+}
+
+std::vector<QVector2D> Rrt::getResult()
+{
+    return result;
 }

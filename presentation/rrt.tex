@@ -41,9 +41,10 @@
 	\item Bias toward unexplored space:
 	\begin{itemize}
 		\item State selection related to Voronoi region size;
+		\item Randomness leads to zigzags.
 	\end{itemize}
 	\item Probabilistic completeness;
-	\item Metric determines performance.
+	\item Metric determines performance;
 	\end{itemize}	
 	\begin{figure}[ht]
 		\centering	
@@ -55,6 +56,12 @@
 \section{Algorithm}
 \frame{\frametitle{Variants}
 	\begin{itemize}
+		\item Nonholonomic constraints on tree growth:
+		\begin{itemize}
+			\item Articulated-body;
+			\item Rigid-body.
+			\item Steering;
+		\end{itemize}	
 		\item Obstacles:
 		\begin{itemize}
 			\item Selection of random free states;
@@ -62,15 +69,10 @@
 		\end{itemize}
 		\item Bias toward goal:
 		\begin{itemize}
-			\item Avoid "bad luck";
-			\item Need to be slight.
+			\item Avoids "bad luck";
+			\item Needs to be slight.
 		\end{itemize}
-		\item Movement constraints:
-		\begin{itemize}
-			\item Nonholonomic;
-			\item Rigid-body.
-		\end{itemize}	
-		\item BiRRT, RRT*, Theta*-RRT, ...	
+		\item BiRRT, RRT*, DO-RRT, BI$^2$RRT*, I-RRT-C ...	
 	\end{itemize}
 }
 

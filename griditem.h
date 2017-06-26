@@ -3,6 +3,7 @@
 
 #include <QGraphicsItem>
 #include <QPainter>
+#include <QTimer>
 
 #include "graph.h"
 #include "util.h"
@@ -24,7 +25,7 @@ public:
     QPoint getTarget();
     void resetTarget();
     bool isTarget(qreal x, qreal y);
-    void setCSpace(std::vector<std::vector<int> > cspace);
+    void setCSpace(std::vector<std::vector<int> > cspace);    
     bool isFree(qreal x, qreal y);
     void setFoundTarget(bool foundTarget);
     void zoomIn();
@@ -39,9 +40,9 @@ private:
     QPoint source;
     QPoint target;
     bool foundTarget;
-    std::vector<std::vector<int> > cspace;
     bool drawPath;
     double cellSize;
+    std::vector<std::vector<int> > cspace;
 signals:
     void setSomething(int, int);
 };

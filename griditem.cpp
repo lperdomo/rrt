@@ -48,7 +48,6 @@ void GridItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
                     painter->setPen(QPen(QColor(220, 0, 0)));
                     painter->setBrush(QBrush(QColor(220, 0, 0)));
                     painter->drawRect(cellSize*x, cellSize*y, cellSize, cellSize);
-
                 }
             }
         }

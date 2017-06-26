@@ -5,7 +5,7 @@
 Controller::Controller() :
     QObject()
 {
-    cspace = new CSpace(150, 100, 10);
+    cspace = new CSpace(150, 100, 20);
     rrt = new Rrt();
     thread = new QThread();
     thread->connect(thread, SIGNAL(started()), rrt, SLOT(generateRrt()));
