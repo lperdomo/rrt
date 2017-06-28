@@ -156,7 +156,9 @@ void CSpace::dismarkTarget(int x, int y)
 {
     for (int i = x-3; i < x+2; i++) {
         for (int j = y-3; j < y+2; j++) {
-            Cspace[i][j] = 0;
+            if (!this->isObstacleAt(i, j)) {
+                Cspace[i][j] = 0;
+            }
         }
     }
 }
@@ -169,7 +171,9 @@ void CSpace::markTarget(int x, int y)
                || (i == x-3 && j == y+1)
                || (i == x+1 && j == y-3)
                || (i == x+1 && j == y+1))) {
-                Cspace[i][j] = 1;
+                if (!this->isObstacleAt(i, j)) {
+                    Cspace[i][j] = 1;
+                }
             }
         }
     }
